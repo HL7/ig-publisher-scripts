@@ -7,7 +7,7 @@ SET publisher_jar=publisher.jar
 SET input_cache_path=%CD%\input-cache\
 SET skipPrompts=false
 
-SET scriptdlroot=https://raw.githubusercontent.com/FHIR/ig-publisher-scripts/main
+SET scriptdlroot=https://raw.githubusercontent.com/HL7/ig-publisher-scripts/main
 SET update_bat_url=%scriptdlroot%/_updatePublisher.bat
 SET gen_bat_url=%scriptdlroot%/_genonce.bat
 SET gencont_bat_url=%scriptdlroot%/_gencontinuous.bat
