@@ -100,19 +100,12 @@ if [[ $skipPrompts != true ]]; then
     read -r -p "$message" response
   fi
 
-function update_script() {
-  local url="${1}"
-  local script="$( basename $url )"
-  curl -L "${url}" -o /tmp/${script}.new && cp /tmp/${script}.new ${script}
-  rm /tmp/"${script}".new
-}
-
 if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
   echo "Downloading most recent scripts "
-  update_script $update_bat_url
-  update_script $gen_bat_url
-  update_script $gencont_bat_url
-  update_script $gencont_sh_url
-  update_script $gen_sh_url
-  update_script $update_sh_url
+  curl -Of $update_bat_url
+  curl -Of $gen_bat_url
+  curl -Of $gencont_bat_url
+  curl -Of $gencont_sh_url
+  curl -Of $gen_sh_url
+  curl -Of $update_sh_url
 fi
