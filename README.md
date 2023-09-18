@@ -21,6 +21,15 @@ the `_genonce.bat` and `_genonce.sh` scripts
 ## GenContinuous
 the `_gencontinuous.bat` and `_gencontinuous.sh` scripts 
 1. Check if we're online (i.e. if tx.fhir.org is reachable)
-2. Runs the publisher to build the IG from the current folder and monitors for file changes, in which case it will build again, until the user exits.
+2. Runs the publisher to build the IG from the current folder and monitors for file changes, in which case it will build again, until the user exits.  
 
+<br/>
 
+> **Security note**  
+These scripts are intended to download executables, and can easily trigger antivirus software; In addition, security setting on the machine or domain may block some of these actions. If you encounter such issues an you can't get around them, then you just have to 
+a) download the jar manually rom its [permanent location](https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar) into the `input-cache` or parent folder, instead of using `updatePublisher`  
+and/or  
+b) run the command line yourself instead of using `genonce`:   
+`input-cache\publisher.jar" -ig . `  
+or  
+`..\publisher.jar" -ig . `
