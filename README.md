@@ -26,8 +26,8 @@ the `_gencontinuous.bat` and `_gencontinuous.sh` scripts
 <br/>
 
 > **Security note**  
-These scripts are intended to download executables, and can easily trigger antivirus software; In addition, security setting on the machine or domain may block some of these actions. If you encounter such issues an you can't get around them, then you just have to 
-a) download the jar manually rom its [permanent location](https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar) into the `input-cache` or parent folder, instead of using `updatePublisher`  
+These scripts are intended to download executables, and can easily trigger antivirus software; In addition, security settings on the machine or domain may block some of these actions. If you encounter such issues and you can't get around them, then you may: 
+a) download the jar manually from its [permanent location](https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar) into the `input-cache` or parent folder, instead of using `updatePublisher`  
 and/or  
 b) run the command line yourself instead of using `genonce`:   
 `input-cache\publisher.jar" -ig . `  
