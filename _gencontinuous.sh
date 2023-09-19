@@ -1,2 +1,2 @@
 #!/bin/bash
-./_genonce.sh -watch
+"$(dirname "$0")/_genonce.sh" -watch
