@@ -14,8 +14,10 @@ IF "%~1"=="/f" SET skipPrompts=y
 
 ECHO.
 ECHO Checking internet connection...
-PING tx.fhir.org -4 -n 1 -w 1000 | FINDSTR TTL && GOTO isonline
-ECHO We're offline, nothing to do...
+PING tx.fhir.org -4 -n 1 -w 4000 | FINDSTR TTL && GOTO isonline
+ECHO We're offline, can only run the publisher without TX...
+SET txoption=-tx n/a
+
 GOTO end
 
 :isonline
@@ -45,21 +47,24 @@ IF "%publisher_missing%"=="true" (
 
 echo Please select an option:
 echo 1. Download or upload publisher
-echo 2. Run default generation
-echo 3. Run continuous generation
-echo 4. Jekyll build
-echo 5. Clean up temp directories
-echo 6. Exit
+echo 2. Build IG
+echo 3. Build IG - force no TX server
+echo 4. Builg IG continuously
+echo 5. Jekyll build
+echo 6. Clean up temp directories
+echo 7. Exit
 
 choice /C 123456 /N /M "Enter your choice (default in 3 seconds):" /T 3 /D %default_choice%
 echo Selected choice: %ERRORLEVEL%
 
 IF "%ERRORLEVEL%"=="1" GOTO downloadpublisher
 IF "%ERRORLEVEL%"=="2" GOTO publish_once
-IF "%ERRORLEVEL%"=="3" GOTO publish_continuous
-IF "%ERRORLEVEL%"=="4" GOTO debugjekyll
-IF "%ERRORLEVEL%"=="5" GOTO clean
-IF "%ERRORLEVEL%"=="6" EXIT /B
+IF "%ERRORLEVEL%"=="3" GOTO publish_notx
+IF "%ERRORLEVEL%"=="4" GOTO publish_continuous
+
+IF "%ERRORLEVEL%"=="5" GOTO debugjekyll
+IF "%ERRORLEVEL%"=="6" GOTO clean
+IF "%ERRORLEVEL%"=="7" EXIT /B
 
 
 
@@ -260,9 +265,6 @@ GOTO end
 
 
 
-
-
-
 :publish_once
 
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
@@ -276,6 +278,24 @@ IF EXIST "%input_cache_path%\%publisher_jar%" (
 )
 
 GOTO end
+
+
+:publish_notx
+SET txoption=-tx n/a
+
+SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+
+IF EXIST "%input_cache_path%\%publisher_jar%" (
+	JAVA -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% %*
+) ELSE If exist "..\%publisher_jar%" (
+	JAVA -jar "..\%publisher_jar%" -ig . %txoption% %*
+) ELSE (
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
+)
+
+GOTO end
+
+
 
 
 :publish_continuous
