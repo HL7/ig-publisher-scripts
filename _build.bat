@@ -1,59 +1,78 @@
 @ECHO OFF
-setlocal
-
-SET dlurl=https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar
-SET publisher_jar=publisher.jar
-SET input_cache_path=%CD%\input-cache\
-SET skipPrompts=false
-set upper_path=..\
-SET scriptdlroot=https://raw.githubusercontent.com/HL7/ig-publisher-scripts/main
-SET build_bat_url=%scriptdlroot%/_build.bat
-SET build_sh_url=%scriptdlroot%/_build.sh
-
-IF "%~1"=="/f" SET skipPrompts=y
-
-ECHO.
-ECHO Checking internet connection...
-PING tx.fhir.org -4 -n 1 -w 4000 | FINDSTR TTL && GOTO isonline
-ECHO We're offline, can only run the publisher without TX...
-SET txoption=-tx n/a
-
-GOTO end
-
-:isonline
-ECHO We're online
-
-
-:checkPublisher
-SET "publisher_missing=false"
-SET input_cache_path=%CD%\input-cache\
-SET publisher_jar=publisher.jar
-SET upper_path=..\
-
-IF NOT EXIST "%input_cache_path%%publisher_jar%" (
-    IF NOT EXIST "%upper_path%%publisher_jar%" (
-        SET "publisher_missing=true"
-    )
-)
-
+setlocal enabledelayedexpansion
 
 CLS
 
-IF "%publisher_missing%"=="true" (
-    SET "default_choice=1"
+SET "dlurl=https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar"
+SET "publisher_jar=publisher.jar"
+SET "input_cache_path=%CD%\input-cache\"
+SET "skipPrompts=false"
+SET "upper_path=..\"
+SET "scriptdlroot=https://raw.githubusercontent.com/costateixeira/ig-publisher-scripts/main"
+SET "build_bat_url=%scriptdlroot%/_build.bat"
+SET "build_sh_url=%scriptdlroot%/_build.sh"
+
+IF "%~1"=="/f" SET "skipPrompts=y"
+
+ECHO Checking internet connection...
+PING tx.fhir.org -4 -n 1 -w 4000 >nul 2>&1 && SET "online_status=true" || SET "online_status=false"
+
+IF "%online_status%"=="true" (
+    ECHO We're online.
+    REM Fetch the latest version from GitHub if online
+    FOR /F "tokens=2 delims=:" %%a IN ('curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest ^| findstr "tag_name"') DO SET "latest_version=%%a"
+    SET "latest_version=!latest_version:"=!"
+    SET "latest_version=!latest_version: =!"
+    SET "latest_version=!latest_version:~0,-1!"
 ) ELSE (
-    SET "default_choice=2"
+    ECHO We're offline, can only run the publisher without TX...
+    SET "txoption=-tx n/a"
+    SET "latest_version=unknown"
 )
 
+REM Determine the JAR location
+IF EXIST "%input_cache_path%%publisher_jar%" (
+    SET "jar_location=%input_cache_path%%publisher_jar%"
+) ELSE IF EXIST "%upper_path%%publisher_jar%" (
+    SET "jar_location=%upper_path%%publisher_jar%"
+) ELSE (
+    SET "jar_location=not_found"
+)
+
+REM Check the current version of the publisher if JAR is found
+IF NOT "%jar_location%"=="not_found" (
+    FOR /F "tokens=*" %%i IN ('java "-Dfile.encoding=UTF-8" -jar "%jar_location%" -v 2^>^&1') DO SET "publisher_version=%%i"
+    SET "publisher_version=!publisher_version:"=!"
+) ELSE (
+    SET "publisher_version=unknown"
+)
+
+ECHO Publisher version: !publisher_version!; Latest is !latest_version!
+REM Set the default choice based on the version and online status
+IF NOT "%online_status%"=="true" (
+   ECHO We're offline.
+    ) ELSE (
+
+    IF NOT "!publisher_version!"=="!latest_version!" (
+        ECHO An update is needed.
+        SET "default_choice=1"
+    ) ELSE (
+        ECHO Publisher is up to date.
+        SET "default_choice=2"
+    )
+)
+
+echo.
 echo Please select an option:
 echo 1. Download or upload publisher
 echo 2. Build IG
-echo 3. Build IG - no TX server
+echo 3. Build IG - force no TX server
 echo 4. Build IG continuously
 echo 5. Jekyll build
 echo 6. Clean up temp directories
-echo 7. Exit
+echo 0. Exit
 echo [Press Enter for default (%default_choice%) or type an option number:]
+echo.
 
 set /p userChoice="Your choice (press Enter for default): "
 if not defined userChoice set userChoice=%default_choice%
@@ -66,7 +85,9 @@ IF "%userChoice%"=="3" GOTO publish_notx
 IF "%userChoice%"=="4" GOTO publish_continuous
 IF "%userChoice%"=="5" GOTO debugjekyll
 IF "%userChoice%"=="6" GOTO clean
-IF "%userChoice%"=="7" EXIT /B
+IF "%userChoice%"=="0" EXIT /B
+
+:end
 
 
 
@@ -259,9 +280,6 @@ IF "%skipPrompts%"=="true" (
 )
 
 GOTO end
-
-
-
 
 
 :publish_once
