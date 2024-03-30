@@ -48,7 +48,7 @@ IF "%publisher_missing%"=="true" (
 echo Please select an option:
 echo 1. Download or upload publisher
 echo 2. Build IG
-echo 3. Build IG - force no TX server
+echo 3. Build IG - no TX server
 echo 4. Build IG continuously
 echo 5. Jekyll build
 echo 6. Clean up temp directories
