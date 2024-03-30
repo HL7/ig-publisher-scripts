@@ -49,25 +49,24 @@ echo Please select an option:
 echo 1. Download or upload publisher
 echo 2. Build IG
 echo 3. Build IG - force no TX server
-echo 4. Builg IG continuously
+echo 4. Build IG continuously
 echo 5. Jekyll build
 echo 6. Clean up temp directories
 echo 7. Exit
+echo [Press Enter for default (%default_choice%) or type an option number:]
 
-choice /C 123456 /N /M "Enter your choice (default in 3 seconds):" /T 3 /D %default_choice%
-echo Selected choice: %ERRORLEVEL%
+set /p userChoice="Your choice (press Enter for default): "
+if not defined userChoice set userChoice=%default_choice%
 
-IF "%ERRORLEVEL%"=="1" GOTO downloadpublisher
-IF "%ERRORLEVEL%"=="2" GOTO publish_once
-IF "%ERRORLEVEL%"=="3" GOTO publish_notx
-IF "%ERRORLEVEL%"=="4" GOTO publish_continuous
+echo You selected: %userChoice%
 
-IF "%ERRORLEVEL%"=="5" GOTO debugjekyll
-IF "%ERRORLEVEL%"=="6" GOTO clean
-IF "%ERRORLEVEL%"=="7" EXIT /B
-
-
-
+IF "%userChoice%"=="1" GOTO downloadpublisher
+IF "%userChoice%"=="2" GOTO publish_once
+IF "%userChoice%"=="3" GOTO publish_notx
+IF "%userChoice%"=="4" GOTO publish_continuous
+IF "%userChoice%"=="5" GOTO debugjekyll
+IF "%userChoice%"=="6" GOTO clean
+IF "%userChoice%"=="7" EXIT /B
 
 
 
