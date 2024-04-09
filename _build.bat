@@ -10,6 +10,18 @@ SET "scriptdlroot=https://raw.githubusercontent.com/costateixeira/ig-publisher-s
 SET "build_bat_url=%scriptdlroot%/_build.bat"
 SET "build_sh_url=%scriptdlroot%/_build.sh"
 
+:: Handle command-line argument to bypass the menu
+IF NOT "%~1"=="" (
+    IF /I "%~1"=="update" SET "userChoice=1"
+    IF /I "%~1"=="build" SET "userChoice=2"
+    IF /I "%~1"=="notx" SET "userChoice=4"
+    IF /I "%~1"=="continuous" SET "userChoice=5"
+    IF /I "%~1"=="jekyll" SET "userChoice=6"
+    IF /I "%~1"=="clean" SET "userChoice=7"
+    IF /I "%~1"=="exit" SET "userChoice=0"
+    GOTO executeChoice
+)
+
 IF "%~1"=="/f" SET "skipPrompts=y"
 
 ECHO Checking internet connection...
@@ -17,7 +29,6 @@ PING tx.fhir.org -4 -n 1 -w 4000 >nul 2>&1 && SET "online_status=true" || SET "o
 
 IF "%online_status%"=="true" (
     ECHO We're online and tx.fhir.org is available.
-    REM Fetch the latest version from GitHub if online
     FOR /F "tokens=2 delims=:" %%a IN ('curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest ^| findstr "tag_name"') DO SET "latest_version=%%a"
     SET "latest_version=!latest_version:"=!"
     SET "latest_version=!latest_version: =!"
@@ -28,7 +39,6 @@ IF "%online_status%"=="true" (
     SET "latest_version=unknown"
 )
 
-REM Determine the JAR location
 IF EXIST "%input_cache_path%%publisher_jar%" (
     SET "jar_location=%input_cache_path%%publisher_jar%"
 ) ELSE IF EXIST "%upper_path%%publisher_jar%" (
@@ -37,31 +47,27 @@ IF EXIST "%input_cache_path%%publisher_jar%" (
     SET "jar_location=not_found"
 )
 
-REM Check the current version of the publisher if JAR is found
 IF NOT "%jar_location%"=="not_found" (
     FOR /F "tokens=*" %%i IN ('java "-Dfile.encoding=UTF-8" -jar "%jar_location%" -v 2^>^&1') DO SET "publisher_version=%%i"
     SET "publisher_version=!publisher_version:"=!"
 ) ELSE (
     SET "publisher_version=unknown"
-    SET "default_choice=1"
-    ECHO IG Publisher NOT FOUND in input-cache or parent folder. Default option is to download publisher.
 )
 
 ECHO Publisher version: !publisher_version!; Latest is !latest_version!
-REM Set the default choice based on the version and online status
+
 IF NOT "%online_status%"=="true" (
    ECHO We're offline.
-    ) ELSE (
-
+) ELSE (
     IF NOT "!publisher_version!"=="!latest_version!" (
         ECHO An update is recommended.
+        SET "default_choice=1"
     ) ELSE (
         ECHO Publisher is up to date.
         SET "default_choice=2"
     )
 )
 
-echo.
 echo Please select an option:
 echo 1. Download or upload publisher
 echo 2. Build IG
@@ -77,6 +83,7 @@ echo.
 set /p userChoice="Your choice (press Enter for default): "
 if not defined userChoice set userChoice=%default_choice%
 
+:executeChoice
 echo You selected: %userChoice%
 
 IF "%userChoice%"=="1" GOTO downloadpublisher
