@@ -1,8 +1,6 @@
 @ECHO OFF
 setlocal enabledelayedexpansion
 
-CLS
-
 SET "dlurl=https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar"
 SET "publisher_jar=publisher.jar"
 SET "input_cache_path=%CD%\input-cache\"
@@ -18,14 +16,14 @@ ECHO Checking internet connection...
 PING tx.fhir.org -4 -n 1 -w 4000 >nul 2>&1 && SET "online_status=true" || SET "online_status=false"
 
 IF "%online_status%"=="true" (
-    ECHO We're online.
+    ECHO We're online and tx.fhir.org is available.
     REM Fetch the latest version from GitHub if online
     FOR /F "tokens=2 delims=:" %%a IN ('curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest ^| findstr "tag_name"') DO SET "latest_version=%%a"
     SET "latest_version=!latest_version:"=!"
     SET "latest_version=!latest_version: =!"
     SET "latest_version=!latest_version:~0,-1!"
 ) ELSE (
-    ECHO We're offline, can only run the publisher without TX...
+    ECHO We're offline or tx.fhir.org is not available, can only run the publisher without TX...
     SET "txoption=-tx n/a"
     SET "latest_version=unknown"
 )
@@ -45,6 +43,8 @@ IF NOT "%jar_location%"=="not_found" (
     SET "publisher_version=!publisher_version:"=!"
 ) ELSE (
     SET "publisher_version=unknown"
+    SET "default_choice=1"
+    ECHO IG Publisher NOT FOUND in input-cache or parent folder. Default option is to download publisher.
 )
 
 ECHO Publisher version: !publisher_version!; Latest is !latest_version!
@@ -54,8 +54,7 @@ IF NOT "%online_status%"=="true" (
     ) ELSE (
 
     IF NOT "!publisher_version!"=="!latest_version!" (
-        ECHO An update is needed.
-        SET "default_choice=1"
+        ECHO An update is recommended.
     ) ELSE (
         ECHO Publisher is up to date.
         SET "default_choice=2"
@@ -66,10 +65,11 @@ echo.
 echo Please select an option:
 echo 1. Download or upload publisher
 echo 2. Build IG
-echo 3. Build IG - force no TX server
-echo 4. Build IG continuously
-echo 5. Jekyll build
-echo 6. Clean up temp directories
+echo 3. Build IG - no sushi
+echo 4. Build IG - force no TX server
+echo 5. Build IG continuously
+echo 6. Jekyll build
+echo 7. Clean up temp directories
 echo 0. Exit
 echo [Press Enter for default (%default_choice%) or type an option number:]
 echo.
@@ -81,10 +81,11 @@ echo You selected: %userChoice%
 
 IF "%userChoice%"=="1" GOTO downloadpublisher
 IF "%userChoice%"=="2" GOTO publish_once
-IF "%userChoice%"=="3" GOTO publish_notx
-IF "%userChoice%"=="4" GOTO publish_continuous
-IF "%userChoice%"=="5" GOTO debugjekyll
-IF "%userChoice%"=="6" GOTO clean
+IF "%userChoice%"=="3" GOTO publish_nosushi
+IF "%userChoice%"=="4" GOTO publish_notx
+IF "%userChoice%"=="5" GOTO publish_continuous
+IF "%userChoice%"=="6" GOTO debugjekyll
+IF "%userChoice%"=="7" GOTO clean
 IF "%userChoice%"=="0" EXIT /B
 
 :end
@@ -275,7 +276,7 @@ goto dl_script_2
 start copy /y "_build.new.bat" "_build.bat" ^&^& del "_build.new.bat" ^&^& exit
 
 
-IF "%skipPrompts%"=="true" (
+IF NOT "%skipPrompts%"=="true" (
   PAUSE
 )
 
@@ -286,12 +287,24 @@ GOTO end
 
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
-IF EXIST "%input_cache_path%\%publisher_jar%" (
-	JAVA -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% %*
-) ELSE If exist "..\%publisher_jar%" (
-	JAVA -jar "..\%publisher_jar%" -ig . %txoption% %*
+IF NOT "%jar_location%"=="not_found" (
+	JAVA -jar "%jar_location%" -ig . %txoption% %*
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
+)
+
+GOTO end
+
+
+
+:publish_nosushi
+
+SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
+
+IF NOT "%jar_location%"=="not_found" (
+	JAVA -jar "%jar_location%" -ig . %txoption% -no-sushi %*
+) ELSE (
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder. Please run _updatePublisher.  Aborting...
 )
 
 GOTO end
@@ -302,10 +315,8 @@ SET txoption=-tx n/a
 
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
-IF EXIST "%input_cache_path%\%publisher_jar%" (
-	JAVA -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% %*
-) ELSE If exist "..\%publisher_jar%" (
-	JAVA -jar "..\%publisher_jar%" -ig . %txoption% %*
+IF NOT "%jar_location%"=="not_found" (
+	JAVA -jar "%jar_location%" -ig . %txoption% %*
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
 )
