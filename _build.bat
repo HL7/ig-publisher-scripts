@@ -81,7 +81,7 @@ echo.
 
 :: Using CHOICE to handle input with timeout
 :: ECHO [Enter=Continue, 1-7=Option, 0=Exit]
-choice /C 12345670 /N /CS /D 0 /T 5 /M "Choose an option or wait for default (5 seconds):"
+choice /C 12345670 /N /CS /D %default_choice% /T 5 /M "Choose an option or wait for default (5 seconds):"
 SET "userChoice=%ERRORLEVEL%"
 
 
@@ -140,7 +140,7 @@ GOTO end
 
 
 :downloadpublisher
-
+ECHO Downloading Publisher...
 :processflags
 SET ARG=%1
 IF DEFINED ARG (
@@ -204,7 +204,7 @@ IF /I "%overwrite%"=="Y" (
 GOTO done
 
 :download
-ECHO Downloading most recent publisher to %jarlocationname% - it's ~100 MB, so this may take a bit
+ECHO Downloading most recent publisher to %jarlocationname% - it's ~200 MB, so this may take a bit
 
 FOR /f "tokens=4-5 delims=. " %%i IN ('ver') DO SET VERSION=%%i.%%j
 IF "%version%" == "10.0" GOTO win10
