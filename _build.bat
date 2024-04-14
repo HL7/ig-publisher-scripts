@@ -23,6 +23,7 @@ IF NOT "%~1"=="" (
     GOTO executeChoice
 )
 
+echo ---------------------------------------------------------------
 ECHO Checking internet connection...
 PING tx.fhir.org -4 -n 1 -w 4000 >nul 2>&1 && SET "online_status=true" || SET "online_status=false"
 
@@ -36,7 +37,10 @@ IF "%online_status%"=="true" (
     ECHO We're offline or tx.fhir.org is not available, can only run the publisher without TX...
     SET "txoption=-tx n/a"
     SET "latest_version=unknown"
+    SET "default_choice=4"
 )
+
+echo ---------------------------------------------------------------
 
 IF EXIST "%input_cache_path%%publisher_jar%" (
     SET "jar_location=%input_cache_path%%publisher_jar%"
@@ -67,6 +71,9 @@ IF NOT "%online_status%"=="true" (
     )
 )
 
+echo ---------------------------------------------------------------
+echo.
+
 echo Please select an option:
 echo 1. Download or upload publisher
 echo 2. Build IG
@@ -76,12 +83,12 @@ echo 5. Build IG continuously
 echo 6. Jekyll build
 echo 7. Clean up temp directories
 echo 0. Exit
-echo [Press Enter for default (%default_choice%) or type an option number:]
+:: echo [Press Enter for default (%default_choice%) or type an option number:]
 echo.
 
 :: Using CHOICE to handle input with timeout
 :: ECHO [Enter=Continue, 1-7=Option, 0=Exit]
-choice /C 12345670 /N /CS /D %default_choice% /T 5 /M "Choose an option or wait for default (5 seconds):"
+choice /C 12345670 /N /CS /D %default_choice% /T 5 /M "Choose an option number or wait 5 seconds for default (%default_choice%):"
 SET "userChoice=%ERRORLEVEL%"
 
 
