@@ -14,6 +14,7 @@ SET "build_sh_url=%scriptdlroot%/_build.sh"
 IF NOT "%~1"=="" (
     IF /I "%~1"=="update" SET "userChoice=1"
     IF /I "%~1"=="build" SET "userChoice=2"
+    IF /I "%~1"=="nosushi" SET "userChoice=3"
     IF /I "%~1"=="notx" SET "userChoice=4"
     IF /I "%~1"=="continuous" SET "userChoice=5"
     IF /I "%~1"=="jekyll" SET "userChoice=6"
@@ -21,8 +22,6 @@ IF NOT "%~1"=="" (
     IF /I "%~1"=="exit" SET "userChoice=0"
     GOTO executeChoice
 )
-
-IF "%~1"=="/f" SET "skipPrompts=y"
 
 ECHO Checking internet connection...
 PING tx.fhir.org -4 -n 1 -w 4000 >nul 2>&1 && SET "online_status=true" || SET "online_status=false"
@@ -80,8 +79,11 @@ echo 0. Exit
 echo [Press Enter for default (%default_choice%) or type an option number:]
 echo.
 
-set /p userChoice="Your choice (press Enter for default): "
-if not defined userChoice set userChoice=%default_choice%
+:: Using CHOICE to handle input with timeout
+:: ECHO [Enter=Continue, 1-7=Option, 0=Exit]
+choice /C 12345670 /N /CS /D 0 /T 5 /M "Choose an option or wait for default (5 seconds):"
+SET "userChoice=%ERRORLEVEL%"
+
 
 :executeChoice
 echo You selected: %userChoice%
