@@ -284,10 +284,10 @@ start copy /y "_build.new.sh" "_build.sh" ^&^& del "_build.new.sh" ^&^& exit
 
 :dl_script_2
 ECHO Updating _build.bat
-call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%build_sh_url%\",\"_build.new.bat\") } else { Invoke-WebRequest -Uri "%build_sh_url%" -Outfile "_build.new.bat" }
+call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%build_bat_url%\",\"_build.new.bat\") } else { Invoke-WebRequest -Uri "%build_bat_url%" -Outfile "_build.new.bat" }
 if %ERRORLEVEL% == 0 goto upd_script_2
 echo "Errors encountered during download: %errorlevel%"
-goto dl_script_2
+goto end
 :upd_script_2
 start copy /y "_build.new.bat" "_build.bat" ^&^& del "_build.new.bat" ^&^& exit
 
