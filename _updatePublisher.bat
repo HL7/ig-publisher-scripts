@@ -69,6 +69,7 @@ IF DEFINED FORCE (
 IF "%skipPrompts%"=="y" (
 	SET create=Y
 ) ELSE (
+	ECHO Will place publisher jar here: %input_cache_path%%publisher_jar%
 	SET /p create="Ok? (Y/N) "
 )
 IF /I "%create%"=="Y" (
