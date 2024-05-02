@@ -69,10 +69,11 @@ IF DEFINED FORCE (
 IF "%skipPrompts%"=="y" (
 	SET create=Y
 ) ELSE (
+	ECHO Can download most recent publisher jar and place it here: %input_cache_path%%publisher_jar%
 	SET /p create="Ok? (Y/N) "
 )
 IF /I "%create%"=="Y" (
-	ECHO Will place publisher jar here: %input_cache_path%%publisher_jar%
+	ECHO Placing publisher jar here: %input_cache_path%%publisher_jar%
 	MKDIR "%input_cache_path%" 2> NUL
 	GOTO download
 )
