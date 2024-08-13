@@ -10,6 +10,25 @@ SET "scriptdlroot=https://raw.githubusercontent.com/costateixeira/ig-publisher-s
 SET "build_bat_url=%scriptdlroot%/_build.bat"
 SET "build_sh_url=%scriptdlroot%/_build.sh"
 
+
+
+:: Debugging statements to check jar file location
+ECHO Checking for publisher.jar in %input_cache_path%
+IF EXIST "%input_cache_path%%publisher_jar%" (
+    SET "jar_location=%input_cache_path%%publisher_jar%"
+    ECHO Found publisher.jar in input-cache
+) ELSE (
+    ECHO Checking for publisher.jar in %upper_path%
+    IF EXIST "%upper_path%%publisher_jar%" (
+        SET "jar_location=%upper_path%%publisher_jar%"
+        ECHO Found publisher.jar in parent folder
+    ) ELSE (
+        SET "jar_location=not_found"
+        ECHO publisher.jar not found in input-cache or parent folder
+    )
+)
+
+
 :: Handle command-line argument to bypass the menu
 IF NOT "%~1"=="" (
     IF /I "%~1"=="update" SET "userChoice=1"
@@ -42,19 +61,14 @@ IF "%online_status%"=="true" (
 
 echo ---------------------------------------------------------------
 
-IF EXIST "%input_cache_path%%publisher_jar%" (
-    SET "jar_location=%input_cache_path%%publisher_jar%"
-) ELSE IF EXIST "%upper_path%%publisher_jar%" (
-    SET "jar_location=%upper_path%%publisher_jar%"
-) ELSE (
-    SET "jar_location=not_found"
-)
 
 IF NOT "%jar_location%"=="not_found" (
     FOR /F "tokens=*" %%i IN ('java "-Dfile.encoding=UTF-8" -jar "%jar_location%" -v 2^>^&1') DO SET "publisher_version=%%i"
     SET "publisher_version=!publisher_version:"=!"
+    ECHO Detected publisher version: !publisher_version!
 ) ELSE (
     SET "publisher_version=unknown"
+    ECHO publisher.jar location is not found
 )
 
 ECHO Publisher version: !publisher_version!; Latest is !latest_version!
@@ -303,6 +317,8 @@ GOTO end
 
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
+:: Debugging statements before running publisher
+ECHO 1jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	JAVA -jar "%jar_location%" -ig . %txoption% %*
 ) ELSE (
@@ -317,6 +333,8 @@ GOTO end
 
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
+:: Debugging statements before running publisher
+ECHO 3jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	JAVA -jar "%jar_location%" -ig . %txoption% -no-sushi %*
 ) ELSE (
@@ -331,6 +349,8 @@ SET txoption=-tx n/a
 
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
+:: Debugging statements before running publisher
+ECHO 2jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	JAVA -jar "%jar_location%" -ig . %txoption% %*
 ) ELSE (
@@ -346,12 +366,17 @@ GOTO end
 
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
+:: Debugging statements before running publisher
+ECHO Checking %input_cache_path% for publisher.jar
 IF EXIST "%input_cache_path%\%publisher_jar%" (
 	JAVA -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% -watch %*
-) ELSE If exist "..\%publisher_jar%" (
-	JAVA -jar "..\%publisher_jar%" -ig . %txoption% -watch %*
 ) ELSE (
-	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
+    ECHO Checking %upper_path% for publisher.jar
+    IF EXIST "..\%publisher_jar%" (
+	    JAVA -jar "..\%publisher_jar%" -ig . %txoption% -watch %*
+    ) ELSE (
+	    ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
+    )
 )
 
 GOTO end
