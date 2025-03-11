@@ -212,6 +212,16 @@ goto end
 start copy /y "_updatePublisher.new.bat" "_updatePublisher.bat" ^&^& del "_updatePublisher.new.bat" ^&^& exit
 
 
+:dl_script_7
+ECHO Updating build.bat
+call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%update_bat_url%\",\"_build.new.bat\") } else { Invoke-WebRequest -Uri "%update_bat_url%" -Outfile "_build.new.bat" }
+if %ERRORLEVEL% == 0 goto upd_script_6
+echo "Errors encountered during download: %errorlevel%"
+goto end
+:upd_script_6
+start copy /y "_build.new.bat" "_build.bat" ^&^& del "_build.new.bat" ^&^& exit
+
+
 :end
 
 
