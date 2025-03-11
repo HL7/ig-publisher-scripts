@@ -317,7 +317,7 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO 1jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
-	JAVA -jar "%jar_location%" -ig . %txoption% %*
+	JAVA $JAVA_OPTS -jar "%jar_location%" -ig . %txoption% %*
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
 )
@@ -333,7 +333,7 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO 3jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
-	JAVA -jar "%jar_location%" -ig . %txoption% -no-sushi %*
+	JAVA $JAVA_OPTS -jar "%jar_location%" -ig . %txoption% -no-sushi %*
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder. Please run _updatePublisher.  Aborting...
 )
@@ -349,7 +349,7 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO 2jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
-	JAVA -jar "%jar_location%" -ig . %txoption% %*
+	JAVA $JAVA_OPTS -jar "%jar_location%" -ig . %txoption% %*
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
 )
@@ -366,11 +366,11 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO Checking %input_cache_path% for publisher.jar
 IF EXIST "%input_cache_path%\%publisher_jar%" (
-	JAVA -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% -watch %*
+	JAVA $JAVA_OPTS -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% -watch %*
 ) ELSE (
     ECHO Checking %upper_path% for publisher.jar
     IF EXIST "..\%publisher_jar%" (
-	    JAVA -jar "..\%publisher_jar%" -ig . %txoption% -watch %*
+	    JAVA $JAVA_OPTS -jar "..\%publisher_jar%" -ig . %txoption% -watch %*
     ) ELSE (
 	    ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
     )
