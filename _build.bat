@@ -24,6 +24,7 @@ IF EXIST "%input_cache_path%%publisher_jar%" (
         ECHO Found publisher.jar in parent folder
     ) ELSE (
         SET "jar_location=not_found"
+        SET "default_choice=1"
         ECHO publisher.jar not found in input-cache or parent folder
     )
 )
@@ -317,7 +318,7 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO 1jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
-	JAVA $JAVA_OPTS -jar "%jar_location%" -ig . %txoption% %*
+	java $JAVA_OPTS -jar "%jar_location%" -ig . %txoption% %*
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
 )
@@ -333,7 +334,7 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO 3jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
-	JAVA $JAVA_OPTS -jar "%jar_location%" -ig . %txoption% -no-sushi %*
+	java $JAVA_OPTS -jar "%jar_location%" -ig . %txoption% -no-sushi %*
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder. Please run _updatePublisher.  Aborting...
 )
@@ -349,7 +350,7 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO 2jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
-	JAVA $JAVA_OPTS -jar "%jar_location%" -ig . %txoption% %*
+	java $JAVA_OPTS -jar "%jar_location%" -ig . %txoption% %*
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
 )
@@ -366,11 +367,11 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO Checking %input_cache_path% for publisher.jar
 IF EXIST "%input_cache_path%\%publisher_jar%" (
-	JAVA $JAVA_OPTS -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% -watch %*
+	java $JAVA_OPTS -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% -watch %*
 ) ELSE (
     ECHO Checking %upper_path% for publisher.jar
     IF EXIST "..\%publisher_jar%" (
-	    JAVA $JAVA_OPTS -jar "..\%publisher_jar%" -ig . %txoption% -watch %*
+	    java $JAVA_OPTS -jar "..\%publisher_jar%" -ig . %txoption% -watch %*
     ) ELSE (
 	    ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
     )
