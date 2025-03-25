@@ -5,7 +5,7 @@ setup() {
 }
 
 teardown() {
-  rm -rf input-cache testscript publisher.jar curl
+  rm -rf input-cache testscript publisher.jar ./curl
 }
 
 @test "creates input-cache directory with --yes" {

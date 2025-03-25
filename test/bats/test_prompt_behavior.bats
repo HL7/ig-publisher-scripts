@@ -2,7 +2,6 @@
 
 setup() {
   rm -rf input-cache testscript publisher.jar curl
-  mkdir -p test/mocks
 }
 
 teardown() {

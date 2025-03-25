@@ -2,11 +2,10 @@
 
 setup() {
   rm -rf input-cache
-  mkdir -p tmp
 }
 
 teardown() {
-  rm -rf input-cache tmp
+  rm -rf input-cache
 }
 
 @test "displays help message with --help" {
