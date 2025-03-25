@@ -10,7 +10,6 @@ jobs:
     permissions:
       issues: read
       contents: read
-      projects: write
     steps:
       - name: Add issue to HL7 project and move to Inbox
         uses: actions/github-script@v6
