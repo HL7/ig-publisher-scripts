@@ -41,7 +41,7 @@ while [[ "$1" != '-o' && "$1" != '' ]]; do
   shift
 done
 echo "file should be $2"
-touch /tmp/$(basename "$2")  # simulate download
+touch $(basename "$2")  # simulate download
 EOF
   chmod +x ./curl
 

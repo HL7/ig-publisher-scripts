@@ -76,13 +76,11 @@ update_script() {
   local url=$1
   local filename=${url##*/}
 
-  get_file $url /tmp/${filename}.new
+  get_file $url ${filename}  #.new
   result=$?
   if [[ $result -ne 0 ]]; then
     return $result
   fi
-  cp /tmp/${filename}.new ${filename}
-  rm /tmp/${filename}.new
 }
 
 # Check connection to terminology server
