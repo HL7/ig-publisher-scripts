@@ -118,83 +118,100 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-check_for_curl
-check_network
+update_publisher() {
+  # Check for existence of input_cache
 
-# Check for existence of input_cache
+  if [[ ! -d "${input_cache_path}" ]] ; then
+    if [[ $FORCE != true ]]; then
+      echo "${input_cache_path} does not exist"
+      message="create it? ${ynprompt} "
+      read -r -p "$message" response
+    else
+      response=y
+    fi
+  fi
 
-if [[ ! -d "${input_cache_path}" ]] ; then
-  if [[ $FORCE != true ]]; then
-    echo "${input_cache_path} does not exist"
-    message="create it? ${ynprompt} "
+  if [[ $response =~ ^[yY].*$ ]] ; then
+    mkdir ./input-cache
+  fi
+
+  # Determine the location of the IG Publisher jar and decide on updating
+
+  publisher="${input_cache_path}/${publisher_jar}"
+  jarlocationname="Input Cache"
+  upgrade=true
+
+  if [[ -f "${publisher}" ]]; then
+    echo "IG Publisher FOUND in input-cache"
+    jarlocation="${publisher}"
+  else
+    publisher="$( dirname ${PWD})/${publisher_jar}"
+    echo "publisher = ${publisher}"
+    if [[ -f "${publisher}" ]]; then
+      echo "IG Publisher FOUND in parent folder"
+      jarlocation="${publisher}"
+      jarlocationname="Parent Folder"
+    else
+      echo "IG Publisher NOT FOUND in input-cache or parent folder"
+      jarlocation="${input_cache_path}/${publisher_jar}"
+      upgrade=false
+    fi
+  fi
+
+  if [[ $skipPrompts == false ]]; then
+
+    if [[ $upgrade == true ]]; then
+      message="Overwrite $jarlocation? ${ynprompt} "
+    else
+      echo Will place publisher jar here: "$jarlocation"
+      message="Ok? ${ynprompt} "
+    fi
     read -r -p "$message" response
   else
     response=y
   fi
-fi
 
-if [[ $response =~ ^[yY].*$ ]] ; then
-  mkdir ./input-cache
-fi
+  if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
 
-# Determine the location of the IG Publisher jar and decide on updating
-
-publisher="${input_cache_path}/${publisher_jar}"
-jarlocationname="Input Cache"
-upgrade=true
-
-if [[ -f "${publisher}" ]]; then
-	echo "IG Publisher FOUND in input-cache"
-	jarlocation="${publisher}"
-else
-	publisher="$( basename ${PWD})/${publisher_jar}"
-  echo "publisher = ${publisher}"
-	if [[ -f "${publisher}" ]]; then
-		echo "IG Publisher FOUND in parent folder"
-		jarlocation="${publisher}"
-		jarlocationname="Parent Folder"
-	else
-		echo "IG Publisher NOT FOUND in input-cache or parent folder"
-		jarlocation="${input_cache_path}/${publisher_jar}"
-		upgrade=false
-	fi
-fi
-
-if [[ $skipPrompts == false ]]; then
-
-  if [[ $upgrade == true ]]; then
-    message="Overwrite $jarlocation? ${ynprompt} "
+    echo "Downloading most recent publisher to ${jarlocationname} - it's ~100 MB, so this may take a bit"
+    get_file "${dlurl}" "${jarlocation}" --create-dirs
   else
-    echo Will place publisher jar here: "$jarlocation"
-    message="Ok? ${ynprompt} "
+    echo "Cancelled publisher update"
   fi
-  read -r -p "$message" response
-else
-  response=y
-fi
-
-if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
-
-	echo "Downloading most recent publisher to ${jarlocationname} - it's ~100 MB, so this may take a bit"
-	download ${dlurl} -o "${jarlocation}" --create-dirs
-else
-	echo "Cancelled publisher update"
-fi
+}
 
 #  Update the scripts
 
-if [[ $skipPrompts != true ]]; then
-    message="Update scripts? ${ynprompt} "
-    read -r -p "$message" response
+update_helper_scripts() {
+  if [[ $skipPrompts != true ]]; then
+      message="Update scripts? ${ynprompt} "
+      read -r -p "$message" response
+    fi
+
+  if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
+    echo "Downloading most recent scripts"
+
+    update_script $update_bat_url 
+    update_script $gen_bat_url 
+    update_script $gencont_bat_url 
+    update_script $gencont_sh_url 
+    update_script $gen_sh_url 
+    update_script $update_sh_url 
   fi
+}
 
-if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
-  echo "Downloading most recent scripts"
+main() {
+  # Main script logic here
 
-  update_script $update_bat_url 
-  update_script $gen_bat_url 
-  update_script $gencont_bat_url 
-  update_script $gencont_sh_url 
-  update_script $gen_sh_url 
-  update_script $update_sh_url 
+  check_for_curl
+  check_network
+  update_publisher
+  update_helper_scripts
+}
+
+# Only run main if not being sourced
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
+else
+  echo "main is not run because it's not stand alone"
 fi
