@@ -17,9 +17,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const projectId = "PVT_kwDOAURDVc4AkS-i";
-            const statusFieldId = "PVTSSF_lADOAURDVc4AkS-izgchrII";
-            const inboxOptionId = "6e0766a4";
+            const projectId = "PVT_kwHOAPZ6UM4A1N5s";
+            const statusFieldId = "PVTSSF_lAHOAPZ6UM4A1N5szgquStU";
+            const inboxOptionId = "76552b54";
 
             const itemId = context.payload.issue.node_id;
 
