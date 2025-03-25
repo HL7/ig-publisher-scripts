@@ -1,0 +1,24 @@
+#!/usr/bin/expect -f
+
+set timeout 30
+
+spawn ./updatePublisher.sh
+
+expect {
+    "create it?" {
+        send "y\r"
+    }
+}
+
+expect {
+    "Overwrite" {
+        send "y\r"
+    } "Ok?" {
+        send "y\r"
+    }
+}
+
+expect "Update scripts?"
+send "n\r"
+
+expect eof
