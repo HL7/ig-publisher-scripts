@@ -34,7 +34,7 @@ while :; do
 done
 
 function update_scripts_prompt() {
-  read -p "Update scripts (_build.bat and _build.sh)? (Y/N): " update_confirm
+  read -p "Update scripts? (Y/N): " update_confirm
   if [[ "$update_confirm" =~ ^[Yy]$ ]]; then
     echo "Updating scripts..."
     curl -L "$build_bat_url" -o "_build.new.bat" && mv "_build.new.bat" "_build.bat"
