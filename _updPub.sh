@@ -212,6 +212,4 @@ main() {
 # Only run main if not being sourced
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
   main "$@"
-else
-  echo "main is not run because it's not stand alone"
 fi
