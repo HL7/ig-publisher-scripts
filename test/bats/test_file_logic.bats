@@ -6,7 +6,7 @@ setup() {
 }
 
 teardown() {
-  # rm -rf input-cache
+  rm -rf input-cache
 }
 
 @test "detects existing publisher.jar in input-cache" {
