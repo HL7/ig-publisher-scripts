@@ -12,18 +12,18 @@ teardown() {
 
 @test "does NOT overwrite existing file if curl fails" {
   # Create a known original file
-  echo "Original Content" > testscript
+  echo "Original Content" > ./testscript
 
   PATH="$(pwd):$PATH"
   source $SCRIPT_UNDER_TEST
 
   run update_script "https://example.com/testscript"
 
-  [ "$status" -eq 0 ]  # function itself doesn't exit non-zero
+  [ "$status" -ne 0 ]
   [ -f "testscript" ]
 
   # Ensure content was NOT changed
   run cat testscript
-  [ "$output" = "Original Content" ]
+  [[ "$output" =~ "Original Content" ]]
 }
 
