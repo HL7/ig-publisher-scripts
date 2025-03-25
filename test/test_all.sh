@@ -13,6 +13,3 @@ DT=$(date +"%Y-%m-%d")
 
 echo "Running Bats tests..."
 bats ${ROOT_DIR}/test/bats/
-
-# echo "Running expect test..."
-# ${ROOT_DIR}/test/expect/test_interactive.exp
