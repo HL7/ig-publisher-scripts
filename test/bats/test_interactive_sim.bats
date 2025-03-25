@@ -36,7 +36,12 @@ EOF
 @test "updates helper scripts with --yes (mocked curl)" {
   cat > ./curl <<'EOF'
 #!/bin/bash
-touch /tmp/$(basename "$8").new  # simulate download
+while [[ "$1" != '-o' && "$1" != '' ]]; do
+  echo "arg is $1"
+  shift
+done
+echo "file should be $2"
+touch /tmp/$(basename "$2")  # simulate download
 EOF
   chmod +x ./curl
 
