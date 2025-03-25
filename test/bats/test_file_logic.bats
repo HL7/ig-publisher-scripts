@@ -1,12 +1,12 @@
 #!/usr/bin/env bats
 
 setup() {
-  rm -rf input-cache
+  rm -rf input-cache ./tmp
   mkdir -p input-cache
 }
 
 teardown() {
-  rm -rf input-cache
+  rm -rf input-cache ./tmp
 }
 
 @test "detects existing publisher.jar in input-cache" {

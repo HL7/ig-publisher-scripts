@@ -7,8 +7,7 @@ setup() {
 }
 
 teardown() {
-  rm -f testscript
-  rm -f ./curl
+  rm -f testscript ./curl
 }
 
 @test "does NOT overwrite existing file if curl fails" {
