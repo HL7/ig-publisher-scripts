@@ -174,7 +174,7 @@ update_publisher() {
   if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
 
     echo "Downloading most recent publisher to ${jarlocationname} - it's ~100 MB, so this may take a bit"
-    get_file "${dlurl}" "${jarlocation}" --create-dirs
+    get_file "${dlurl}" "${jarlocation}"
   else
     echo "Cancelled publisher update"
   fi
