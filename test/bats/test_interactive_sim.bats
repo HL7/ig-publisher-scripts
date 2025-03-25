@@ -31,7 +31,7 @@ EOF
   PATH="$(pwd):$PATH" 
   run $SCRIPT_UNDER_TEST --yes
   [ "$status" -eq 0 ]
-  [ -f "input-cache/publisher.jar" ] || [ -f "$(basename "$PWD")/publisher.jar" ]
+  [ -f "input-cache/publisher.jar" ] || [ -f "$(dirname "$PWD")/publisher.jar" ]
 }
 
 @test "updates helper scripts with --yes (mocked curl)" {
