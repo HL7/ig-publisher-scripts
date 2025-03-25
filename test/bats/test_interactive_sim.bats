@@ -20,7 +20,11 @@ teardown() {
   # Mock curl to simulate download
   cat > ./curl <<'EOF'
 #!/bin/bash
-echo "JAR CONTENT" > "$8"  # simulate: curl -o file
+while [[ "$1" != '-o' && "$1" != '' ]]; do
+  echo "arg is $1"
+  shift
+done
+echo "JAR CONTENT" > "$2"  # simulate: curl -o file
 EOF
   chmod +x ./curl
 
