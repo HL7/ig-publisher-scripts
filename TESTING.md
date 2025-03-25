@@ -1,5 +1,7 @@
 # Testing the shell scripts
 
+__WARNING__: the test scripts will download and overwrite the actual scripts in this directory, so make sure you are not overwriting important scripts.
+
 The information below is intended for testing the shell scripts in this repository.
 These tests are NOT necessary for regular users that want to simply use the scripts
 to work with the FHIR IG Publisher.
@@ -17,4 +19,8 @@ sudo apt install bats       # Ubuntu
 
 ## Running the tests
 
-All tests can be found in the `test` directory. This directory also contains a script to run all the tests at once.
+All tests can be found in the `test` directory. This directory also contains a script to run all the tests at once. The best way to run this script is from the root directory of this project as 
+
+```shell
+./tests/tests_all.sh
+```
