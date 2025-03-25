@@ -42,13 +42,33 @@ function update_publisher() {
   curl -L "$dlurl" -o "${input_cache_path}${publisher_jar}"
 }
 
-function build_ig() {
-  if [ "$jar_location" != "not_found" ]; then
-    java -Dfile.encoding=UTF-8 -jar "$jar_location" -ig . "$@"
+function update_publisher() {
+  echo "Publisher jar location: ${input_cache_path}${publisher_jar}"
+  read -p "Download or update publisher.jar? (Y/N): " confirm
+  if [[ "$confirm" =~ ^[Yy]$ ]]; then
+    echo "Downloading latest publisher.jar (~200 MB)..."
+    mkdir -p "$input_cache_path"
+    curl -L "$dlurl" -o "${input_cache_path}${publisher_jar}"
   else
-    echo "publisher.jar not found. Please run update."
+    echo "Skipped downloading publisher.jar"
+  fi
+
+  update_scripts_prompt
+}
+
+
+function update_scripts_prompt() {
+  read -p "Update scripts (_build.bat and _build.sh)? (Y/N): " update_confirm
+  if [[ "$update_confirm" =~ ^[Yy]$ ]]; then
+    echo "Updating scripts..."
+    curl -L "$build_bat_url" -o "_build.new.bat" && mv "_build.new.bat" "_build.bat"
+    curl -L "$build_sh_url" -o "_build.new.sh" && mv "_build.new.sh" "_build.sh"
+    echo "Scripts updated."
+  else
+    echo "Skipped updating scripts."
   fi
 }
+
 
 function build_nosushi() {
   if [ "$jar_location" != "not_found" ]; then
