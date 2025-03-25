@@ -30,6 +30,7 @@ EOF
   run $SCRIPT_UNDER_TEST --yes
   [ "$status" -eq 0 ]
   [ -f "input-cache/publisher.jar" ] || [ -f "$(dirname "$PWD")/publisher.jar" ]
+  rm -f _gen*.* _update*.* # remove the dummy scripts created with running this script 
 }
 
 @test "updates helper scripts with --yes (mocked curl)" {
