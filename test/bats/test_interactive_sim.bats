@@ -2,12 +2,10 @@
 
 setup() {
   rm -rf input-cache testscript publisher.jar
-  mkdir -p test/mocks
-  echo "Mock Content" > test/mocks/testscript.new
 }
 
 teardown() {
-  rm -rf input-cache testscript publisher.jar curl test/mocks/testscript.new
+  rm -rf input-cache testscript publisher.jar curl
 }
 
 @test "creates input-cache directory with --yes" {
