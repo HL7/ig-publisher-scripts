@@ -110,13 +110,18 @@ EOF
 #!/bin/bash
 if [[ "$1" == "https://tx.fhir.org" ]]; then
   exit 0
-elif [[ "$8" =~ publisher\.jar ]]; then
+fi
+while [[ "$1" != '-o' && "$1" != '' ]]; do
+  # echo "arg is $1"
+  shift
+done
+if [[ "$2" =~ publisher\.jar ]]; then
   echo "Prevent jar download" >&2
   exit 1
 else
   # Simulate helper script download
-  echo "#!/bin/bash" > "$8"
-  echo "# downloaded mock helper script" >> "$8"
+  echo '#!/bin/bash' > "$2"
+  echo "# downloaded mock helper script" >> "$2"
   exit 0
 fi
 EOF
