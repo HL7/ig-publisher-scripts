@@ -8,6 +8,8 @@ SET input_cache_path=%CD%\input-cache\
 SET skipPrompts=false
 
 SET scriptdlroot=https://raw.githubusercontent.com/HL7/ig-publisher-scripts/main
+SET build_bat_url=%scriptdlroot%/_build.bat
+SET build_sh_url=%scriptdlroot%/_build.sh
 SET update_bat_url=%scriptdlroot%/_updatePublisher.bat
 SET gen_bat_url=%scriptdlroot%/_genonce.bat
 SET gencont_bat_url=%scriptdlroot%/_gencontinuous.bat
@@ -213,8 +215,8 @@ start copy /y "_updatePublisher.new.bat" "_updatePublisher.bat" ^&^& del "_updat
 
 
 :dl_script_7
-ECHO Updating build.bat
-call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%update_bat_url%\",\"_build.new.bat\") } else { Invoke-WebRequest -Uri "%update_bat_url%" -Outfile "_build.new.bat" }
+ECHO Updating _build.bat
+call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%build_bat_url%\",\"_build.new.bat\") } else { Invoke-WebRequest -Uri "%update_bat_url%" -Outfile "_build.new.bat" }
 if %ERRORLEVEL% == 0 goto upd_script_6
 echo "Errors encountered during download: %errorlevel%"
 goto end
