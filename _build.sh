@@ -8,7 +8,7 @@ publisher_jar="publisher.jar"
 input_cache_path="$(pwd)/input-cache/"
 skipPrompts=false
 upper_path="../"
-scriptdlroot="https://raw.githubusercontent.com/costateixeira/ig-publisher-scripts/main"
+scriptdlroot="https://raw.githubusercontent.com/HL7/ig-publisher-scripts/main"
 build_bat_url="${scriptdlroot}/_build.bat"
 build_sh_url="${scriptdlroot}/_build.sh"
 
@@ -36,11 +36,6 @@ function check_internet_connection() {
   fi
 }
 
-function update_publisher() {
-  echo "Downloading latest publisher.jar (~200 MB)..."
-  mkdir -p "$input_cache_path"
-  curl -L "$dlurl" -o "${input_cache_path}${publisher_jar}"
-}
 
 function update_publisher() {
   echo "Publisher jar location: ${input_cache_path}${publisher_jar}"
