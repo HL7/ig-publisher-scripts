@@ -6,7 +6,7 @@ SET "publisher_jar=publisher.jar"
 SET "input_cache_path=%CD%\input-cache\"
 SET "skipPrompts=false"
 SET "upper_path=..\"
-SET "scriptdlroot=https://raw.githubusercontent.com/costateixeira/ig-publisher-scripts/main"
+SET "scriptdlroot=https://raw.githubusercontent.com/HL7/ig-publisher-scripts/main"
 SET "build_bat_url=%scriptdlroot%/_build.bat"
 SET "build_sh_url=%scriptdlroot%/_build.sh"
 
