@@ -8,6 +8,8 @@ SET input_cache_path=%CD%\input-cache\
 SET skipPrompts=false
 
 SET scriptdlroot=https://raw.githubusercontent.com/HL7/ig-publisher-scripts/main
+SET build_bat_url=%scriptdlroot%/_build.bat
+SET build_sh_url=%scriptdlroot%/_build.sh
 SET update_bat_url=%scriptdlroot%/_updatePublisher.bat
 SET gen_bat_url=%scriptdlroot%/_genonce.bat
 SET gencont_bat_url=%scriptdlroot%/_gencontinuous.bat
