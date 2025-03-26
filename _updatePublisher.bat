@@ -20,7 +20,7 @@ IF "%~1"=="/f" SET skipPrompts=y
 
 ECHO.
 ECHO Checking internet connection...
-PING tx.fhir.org -4 -n 1 -w 1000 | FINDSTR TTL && GOTO isonline
+PING tx.fhir.org -4 -n 1 -w 4000 | FINDSTR TTL && GOTO isonline
 ECHO We're offline, nothing to do...
 GOTO end
 
@@ -69,6 +69,7 @@ IF DEFINED FORCE (
 IF "%skipPrompts%"=="y" (
 	SET create=Y
 ) ELSE (
+	ECHO Will place publisher jar here: %input_cache_path%%publisher_jar%
 	SET /p create="Ok? (Y/N) "
 )
 IF /I "%create%"=="Y" (
@@ -209,6 +210,16 @@ echo "Errors encountered during download: %errorlevel%"
 goto end
 :upd_script_6
 start copy /y "_updatePublisher.new.bat" "_updatePublisher.bat" ^&^& del "_updatePublisher.new.bat" ^&^& exit
+
+
+:dl_script_7
+ECHO Updating build.bat
+call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%update_bat_url%\",\"_build.new.bat\") } else { Invoke-WebRequest -Uri "%update_bat_url%" -Outfile "_build.new.bat" }
+if %ERRORLEVEL% == 0 goto upd_script_6
+echo "Errors encountered during download: %errorlevel%"
+goto end
+:upd_script_6
+start copy /y "_build.new.bat" "_build.bat" ^&^& del "_build.new.bat" ^&^& exit
 
 
 :end
