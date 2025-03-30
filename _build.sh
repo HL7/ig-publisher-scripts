@@ -65,6 +65,19 @@ function update_scripts_prompt() {
 }
 
 
+function build_ig() {
+  if [ "$jar_location" != "not_found" ]; then
+    args=()
+    if [ "$online" = "false" ]; then
+      args+=("-tx" "n/a")
+    fi
+    java -Dfile.encoding=UTF-8 -jar "$jar_location" -ig . "${args[@]}" "$@"
+  else
+    echo "publisher.jar not found. Please run update."
+  fi
+}
+
+
 function build_nosushi() {
   if [ "$jar_location" != "not_found" ]; then
     java -Dfile.encoding=UTF-8 -jar "$jar_location" -ig . -no-sushi "$@"
