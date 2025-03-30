@@ -124,7 +124,27 @@ case "$1" in
   clean) cleanup ;;
   exit) exit 0 ;;
   *)
-    echo "Menu:"
+    # Compute default choice
+    default_choice=2 # Build by default
+
+    if [ "$jar_location" = "not_found" ]; then
+      default_choice=1 # Download if jar is missing
+    elif [ "$online" = "false" ]; then
+      default_choice=4 # Offline build
+    elif [ -n "$latest_version" ]; then
+      current_version=$(java -jar "$jar_location" -v 2>/dev/null | tr -d '\r')
+      if [ "$current_version" != "$latest_version" ]; then
+        default_choice=1 # Offer update if newer version exists
+      fi
+    fi
+
+    echo "---------------------------------------------"
+    echo "Publisher: ${current_version:-unknown}; Latest: ${latest_version:-unknown}"
+    echo "Publisher location: $jar_location"
+    echo "Online: $online"
+    echo "---------------------------------------------"
+    echo
+    echo "Please select an option:"
     echo "1) Update publisher"
     echo "2) Build IG"
     echo "3) Build IG without Sushi"
@@ -132,7 +152,14 @@ case "$1" in
     echo "5) Jekyll build"
     echo "6) Cleanup temp directories"
     echo "0) Exit"
-    read -p "Choose an option: " choice
+    echo
+
+    # Read with timeout, but default if nothing entered
+    echo -n "Choose an option [default: $default_choice]: "
+    read -t 5 choice || choice="$default_choice"
+    choice="${choice:-$default_choice}"
+    echo "You selected: $choice"
+
     case "$choice" in
       1) update_publisher ;;
       2) build_ig ;;
@@ -144,4 +171,5 @@ case "$1" in
       *) echo "Invalid option." ;;
     esac
   ;;
+
 esac
