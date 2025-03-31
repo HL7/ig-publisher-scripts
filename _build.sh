@@ -58,6 +58,7 @@ function update_scripts_prompt() {
     echo "Updating scripts..."
     curl -L "$build_bat_url" -o "_build.new.bat" && mv "_build.new.bat" "_build.bat"
     curl -L "$build_sh_url" -o "_build.new.sh" && mv "_build.new.sh" "_build.sh"
+    chmod +x _build.sh
     echo "Scripts updated."
   else
     echo "Skipped updating scripts."
