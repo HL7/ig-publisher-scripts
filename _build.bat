@@ -381,3 +381,7 @@ GOTO end
 
 
 :end
+
+:: Pausing at the end
+
+PAUSE
