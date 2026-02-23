@@ -126,10 +126,7 @@ IF "%userChoice%"=="4" GOTO publish_notx
 IF "%userChoice%"=="5" GOTO debugjekyll
 IF "%userChoice%"=="6" GOTO clean
 IF "%userChoice%"=="0" EXIT /B
-
-:end
 GOTO endscript
-
 
 :debugjekyll
     echo Running Jekyll build...
@@ -310,7 +307,7 @@ ECHO Updating _build.bat
 call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%build_bat_url%\",\"_build.new.bat\") } else { Invoke-WebRequest -Uri "%build_bat_url%" -Outfile "_build.new.bat" }
 if %ERRORLEVEL% == 0 goto upd_script_2
 echo "Errors encountered during download: %errorlevel%"
-goto end
+goto endscript
 :upd_script_2
 start copy /y "_build.new.bat" "_build.bat" ^&^& del "_build.new.bat" ^&^& exit
 
@@ -340,7 +337,7 @@ GOTO endscript
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
 :: Debugging statements before running publisher
-ECHO 3jar_location is: %jar_location%
+ECHO jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% -no-sushi %extraArgs%
 ) ELSE (
@@ -356,7 +353,7 @@ SET txoption=-tx n/a
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
 :: Debugging statements before running publisher
-ECHO 2jar_location is: %jar_location%
+ECHO jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% %extraArgs%
 ) ELSE (
@@ -366,23 +363,15 @@ IF NOT "%jar_location%"=="not_found" (
 GOTO endscript
 
 
-
-
 :publish_continuous
 
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
-:: Debugging statements before running publisher
-ECHO Checking %input_cache_path% for publisher.jar
-IF EXIST "%input_cache_path%\%publisher_jar%" (
-	java %JAVA_OPTS% -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% -watch %extraArgs%
+ECHO jar_location is: %jar_location%
+IF NOT "%jar_location%"=="not_found" (
+	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% -watch %extraArgs%
 ) ELSE (
-    ECHO Checking %upper_path% for publisher.jar
-    IF EXIST "..\%publisher_jar%" (
-	    java %JAVA_OPTS% -jar "..\%publisher_jar%" -ig . %txoption% -watch %extraArgs%
-    ) ELSE (
-	    ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
-    )
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
 )
 
 GOTO endscript
