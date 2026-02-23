@@ -206,7 +206,7 @@ IF DEFINED FORCE (
 	GOTO download
 )
 
-IF "%skipPrompts%"=="y" (
+IF "%skipPrompts%"=="true" (
 	SET create=Y
 ) ELSE (
 	SET /p create="Download? (Y/N) "
@@ -219,7 +219,7 @@ IF /I "%create%"=="Y" (
 GOTO done
 
 :upgrade
-IF "%skipPrompts%"=="y" (
+IF "%skipPrompts%"=="true" (
 	SET overwrite=Y
 ) ELSE (
 	SET /p overwrite="Overwrite %jarlocation%? (Y/N) "
@@ -273,7 +273,7 @@ GOTO done
 
 ECHO.
 ECHO Updating scripts
-IF "%skipPrompts%"=="y" (
+IF "%skipPrompts%"=="true" (
 	SET updateScripts=Y
 ) ELSE (
 	SET /p updateScripts="Update scripts? (Y/N) "
