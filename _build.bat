@@ -31,16 +31,27 @@ IF EXIST "%input_cache_path%%publisher_jar%" (
 
 
 :: Handle command-line argument to bypass the menu
-IF NOT "%~1"=="" (
-    IF /I "%~1"=="update" SET "userChoice=1"
-    IF /I "%~1"=="build" SET "userChoice=2"
-    IF /I "%~1"=="nosushi" SET "userChoice=3"
-    IF /I "%~1"=="notx" SET "userChoice=4"
-    IF /I "%~1"=="jekyll" SET "userChoice=5"
-    IF /I "%~1"=="clean" SET "userChoice=6"
-    IF /I "%~1"=="exit" SET "userChoice=0"
-    GOTO executeChoice
-)
+:: Known first arguments select a menu option; anything else is passed through to the publisher
+SET "extraArgs="
+IF "%~1"=="" GOTO showMenu
+IF /I "%~1"=="update" SET "userChoice=1" & GOTO parseExtra
+IF /I "%~1"=="build" SET "userChoice=2" & GOTO parseExtra
+IF /I "%~1"=="nosushi" SET "userChoice=3" & GOTO parseExtra
+IF /I "%~1"=="notx" SET "userChoice=4" & GOTO parseExtra
+IF /I "%~1"=="jekyll" SET "userChoice=5" & GOTO parseExtra
+IF /I "%~1"=="clean" SET "userChoice=6" & GOTO parseExtra
+IF /I "%~1"=="exit" SET "userChoice=0" & GOTO parseExtra
+:: Unknown first arg - default to build, pass all args through
+SET "userChoice=2"
+GOTO collectArgs
+:parseExtra
+SHIFT
+:collectArgs
+IF "%~1"=="" GOTO executeChoice
+SET "extraArgs=!extraArgs! %1"
+SHIFT
+GOTO collectArgs
+:showMenu
 
 echo ---------------------------------------------------------------
 ECHO Checking internet connection...
@@ -117,13 +128,13 @@ IF "%userChoice%"=="6" GOTO clean
 IF "%userChoice%"=="0" EXIT /B
 
 :end
-
+GOTO endscript
 
 
 :debugjekyll
     echo Running Jekyll build...
     jekyll build -s temp/pages -d output
-GOTO end
+GOTO endscript
 
 
 :clean
@@ -152,7 +163,7 @@ GOTO end
         echo Removed: .\template
     )
 
-GOTO end
+GOTO endscript
 
 
 
@@ -273,7 +284,7 @@ IF "%skipPrompts%"=="y" (
 IF /I "%updateScripts%"=="Y" (
 	GOTO scripts
 )
-GOTO end
+GOTO endscript
 
 
 :scripts
@@ -304,7 +315,7 @@ goto end
 start copy /y "_build.new.bat" "_build.bat" ^&^& del "_build.new.bat" ^&^& exit
 
 
-GOTO end
+GOTO endscript
 
 
 :publish_once
@@ -312,14 +323,15 @@ GOTO end
 SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 
 :: Debugging statements before running publisher
-ECHO 1jar_location is: %jar_location%
+ECHO jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
-	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% %*
+	ECHO IG Publisher FOUND, Publishing...
+	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% %extraArgs%
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
 )
 
-GOTO end
+GOTO endscript
 
 
 
@@ -330,12 +342,12 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO 3jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
-	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% -no-sushi %*
+	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% -no-sushi %extraArgs%
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder. Please run _updatePublisher.  Aborting...
 )
 
-GOTO end
+GOTO endscript
 
 
 :publish_notx
@@ -346,12 +358,12 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO 2jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
-	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% %*
+	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% %extraArgs%
 ) ELSE (
 	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
 )
 
-GOTO end
+GOTO endscript
 
 
 
@@ -363,20 +375,20 @@ SET JAVA_TOOL_OPTIONS=-Dfile.encoding=UTF-8
 :: Debugging statements before running publisher
 ECHO Checking %input_cache_path% for publisher.jar
 IF EXIST "%input_cache_path%\%publisher_jar%" (
-	java %JAVA_OPTS% -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% -watch %*
+	java %JAVA_OPTS% -jar "%input_cache_path%\%publisher_jar%" -ig . %txoption% -watch %extraArgs%
 ) ELSE (
     ECHO Checking %upper_path% for publisher.jar
     IF EXIST "..\%publisher_jar%" (
-	    java %JAVA_OPTS% -jar "..\%publisher_jar%" -ig . %txoption% -watch %*
+	    java %JAVA_OPTS% -jar "..\%publisher_jar%" -ig . %txoption% -watch %extraArgs%
     ) ELSE (
 	    ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
     )
 )
 
-GOTO end
+GOTO endscript
 
 
-:end
+:endscript
 
 :: Pausing at the end
 
