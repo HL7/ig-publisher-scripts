@@ -94,7 +94,7 @@ IF /I "%overwrite%"=="Y" (
 GOTO done
 
 :download
-ECHO Downloading most recent publisher to %jarlocationname% - it's ~100 MB, so this may take a bit
+ECHO Downloading most recent publisher to %jarlocationname% - it's ~200 MB, so this may take a bit
 
 FOR /f "tokens=4-5 delims=. " %%i IN ('ver') DO SET VERSION=%%i.%%j
 IF "%version%" == "10.0" GOTO win10
