@@ -139,8 +139,7 @@ if [ $# -gt 0 ]; then
     *)
       # Unknown first arg - default to build, pass all args through
       extraArgs=("$@")
-      check_internet_connection
-      build_ig "${extraArgs[@]}"
+      run_publisher "${extraArgs[@]}"
       exit 0
       ;;
   esac
