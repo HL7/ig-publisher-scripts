@@ -39,7 +39,11 @@ function check_internet_connection() {
 
 function update_publisher() {
   echo "Publisher jar location: ${input_cache_path}${publisher_jar}"
-  read -p "Download or update publisher.jar? (Y/N): " confirm
+  if [ "$skipPrompts" = "true" ]; then
+    confirm="Y"
+  else
+    read -p "Download or update publisher.jar? (Y/N): " confirm
+  fi
   if [[ "$confirm" =~ ^[Yy]$ ]]; then
     echo "Downloading latest publisher.jar (~200 MB)..."
     mkdir -p "$input_cache_path"
@@ -53,7 +57,11 @@ function update_publisher() {
 
 
 function update_scripts_prompt() {
-  read -p "Update scripts (_build.bat and _build.sh)? (Y/N): " update_confirm
+  if [ "$skipPrompts" = "true" ]; then
+    update_confirm="Y"
+  else
+    read -p "Update scripts (_build.bat and _build.sh)? (Y/N): " update_confirm
+  fi
   if [[ "$update_confirm" =~ ^[Yy]$ ]]; then
     echo "Updating scripts..."
     curl -L "$build_bat_url" -o "_build.new.bat" && mv "_build.new.bat" "_build.bat"
@@ -66,33 +74,35 @@ function update_scripts_prompt() {
 }
 
 
-function build_ig() {
+function run_publisher() {
+  local extra_flags=("$@")
   if [ "$jar_location" != "not_found" ]; then
-    args=()
-    if [ "$online" = "false" ]; then
-      args+=("-tx" "n/a")
-    fi
-    java -Dfile.encoding=UTF-8 -jar "$jar_location" -ig . "${args[@]}" "$@"
+    echo "jar_location is: $jar_location"
+    export JAVA_TOOL_OPTIONS="-Dfile.encoding=UTF-8"
+    java $JAVA_OPTS -jar "$jar_location" -ig . "${extra_flags[@]}"
   else
-    echo "publisher.jar not found. Please run update."
+    echo "IG Publisher NOT FOUND in input-cache or parent folder. Please run update. Aborting..."
   fi
 }
 
+function build_ig() {
+  local args=()
+  if [ "$online" = "false" ]; then
+    args+=("-tx" "n/a")
+  fi
+  run_publisher "${args[@]}" "$@"
+}
 
 function build_nosushi() {
-  if [ "$jar_location" != "not_found" ]; then
-    java -Dfile.encoding=UTF-8 -jar "$jar_location" -ig . -no-sushi "$@"
-  else
-    echo "publisher.jar not found. Please run update."
-  fi
+  run_publisher -no-sushi "$@"
 }
 
 function build_notx() {
-  if [ "$jar_location" != "not_found" ]; then
-    java -Dfile.encoding=UTF-8 -jar "$jar_location" -ig . -tx n/a "$@"
-  else
-    echo "publisher.jar not found. Please run update."
-  fi
+  run_publisher -tx n/a "$@"
+}
+
+function build_continuous() {
+  run_publisher -watch "$@"
 }
 
 function jekyll_build() {
@@ -113,64 +123,75 @@ function cleanup() {
 }
 
 check_jar_location
+
+# Handle command-line arguments
+# Known first arguments select a menu option; anything else is passed through to the publisher
+extraArgs=()
+if [ $# -gt 0 ]; then
+  case "$1" in
+    update)  shift; extraArgs=("$@"); update_publisher; exit 0 ;;
+    build)   shift; extraArgs=("$@"); check_internet_connection; build_ig "${extraArgs[@]}"; exit 0 ;;
+    nosushi) shift; extraArgs=("$@"); check_internet_connection; build_nosushi "${extraArgs[@]}"; exit 0 ;;
+    notx)    shift; extraArgs=("$@"); build_notx "${extraArgs[@]}"; exit 0 ;;
+    jekyll)  jekyll_build; exit 0 ;;
+    clean)   cleanup; exit 0 ;;
+    exit)    exit 0 ;;
+    *)
+      # Unknown first arg - default to build, pass all args through
+      extraArgs=("$@")
+      check_internet_connection
+      build_ig "${extraArgs[@]}"
+      exit 0
+      ;;
+  esac
+fi
+
+# Interactive menu
 check_internet_connection
 
-# Handle command-line argument or menu
-case "$1" in
-  update) update_publisher ;;
-  build) build_ig ;;
-  nosushi) build_nosushi ;;
-  notx) build_notx ;;
-  jekyll) jekyll_build ;;
-  clean) cleanup ;;
-  exit) exit 0 ;;
-  *)
-    # Compute default choice
-    default_choice=2 # Build by default
+# Compute default choice
+default_choice=2 # Build by default
 
-    if [ "$jar_location" = "not_found" ]; then
-      default_choice=1 # Download if jar is missing
-    elif [ "$online" = "false" ]; then
-      default_choice=4 # Offline build
-    elif [ -n "$latest_version" ]; then
-      current_version=$(java -jar "$jar_location" -v 2>/dev/null | tr -d '\r')
-      if [ "$current_version" != "$latest_version" ]; then
-        default_choice=1 # Offer update if newer version exists
-      fi
-    fi
+if [ "$jar_location" = "not_found" ]; then
+  default_choice=1 # Download if jar is missing
+elif [ "$online" = "false" ]; then
+  default_choice=4 # Offline build
+elif [ -n "$latest_version" ]; then
+  current_version=$(java -jar "$jar_location" -v 2>/dev/null | tr -d '\r')
+  if [ "$current_version" != "$latest_version" ]; then
+    default_choice=1 # Offer update if newer version exists
+  fi
+fi
 
-    echo "---------------------------------------------"
-    echo "Publisher: ${current_version:-unknown}; Latest: ${latest_version:-unknown}"
-    echo "Publisher location: $jar_location"
-    echo "Online: $online"
-    echo "---------------------------------------------"
-    echo
-    echo "Please select an option:"
-    echo "1) Download or update publisher"
-    echo "2) Build IG"
-    echo "3) Build IG without Sushi"
-    echo "4) Build IG without TX server"
-    echo "5) Jekyll build"
-    echo "6) Cleanup temp directories"
-    echo "0) Exit"
-    echo
+echo "---------------------------------------------"
+echo "Publisher: ${current_version:-unknown}; Latest: ${latest_version:-unknown}"
+echo "Publisher location: $jar_location"
+echo "Online: $online"
+echo "---------------------------------------------"
+echo
+echo "Please select an option:"
+echo "1) Download or update publisher"
+echo "2) Build IG"
+echo "3) Build IG without Sushi"
+echo "4) Build IG without TX server"
+echo "5) Jekyll build"
+echo "6) Cleanup temp directories"
+echo "0) Exit"
+echo
 
-    # Read with timeout, but default if nothing entered
-    echo -n "Choose an option [default: $default_choice]: "
-    read -t 5 choice || choice="$default_choice"
-    choice="${choice:-$default_choice}"
-    echo "You selected: $choice"
+# Read with timeout, but default if nothing entered
+echo -n "Choose an option [default: $default_choice]: "
+read -t 5 choice || choice="$default_choice"
+choice="${choice:-$default_choice}"
+echo "You selected: $choice"
 
-    case "$choice" in
-      1) update_publisher ;;
-      2) build_ig ;;
-      3) build_nosushi ;;
-      4) build_notx ;;
-      5) jekyll_build ;;
-      6) cleanup ;;
-      0) exit 0 ;;
-      *) echo "Invalid option." ;;
-    esac
-  ;;
-
+case "$choice" in
+  1) update_publisher ;;
+  2) build_ig ;;
+  3) build_nosushi ;;
+  4) build_notx ;;
+  5) jekyll_build ;;
+  6) cleanup ;;
+  0) exit 0 ;;
+  *) echo "Invalid option." ;;
 esac
