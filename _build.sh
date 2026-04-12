@@ -168,17 +168,21 @@ fi
 # Interactive menu
 check_internet_connection
 
-# Compute default choice
-default_choice=2 # Build by default
+# Compute default choice and reason
+default_choice=2
+default_reason="publisher is up to date"
 
 if [ "$jar_location" = "not_found" ]; then
-  default_choice=1 # Download if jar is missing
+  default_choice=1
+  default_reason="publisher not found"
 elif [ "$online" = "false" ]; then
-  default_choice=4 # Offline build
+  default_choice=4
+  default_reason="working offline"
 elif [ -n "$latest_version" ]; then
   current_version=$(java -jar "$jar_location" -v 2>/dev/null | tr -d '\r')
   if [ "$current_version" != "$latest_version" ]; then
-    default_choice=1 # Offer update if newer version exists
+    default_choice=1
+    default_reason="newer version available"
   fi
 fi
 
@@ -199,7 +203,7 @@ echo "0) Exit"
 echo
 
 # Read with timeout, but default if nothing entered
-echo -n "Choose an option [default: $default_choice]: "
+echo -n "Choose an option [default: $default_choice - $default_reason]: "
 read -t 5 choice || choice="$default_choice"
 choice="${choice:-$default_choice}"
 echo "You selected: $choice"
