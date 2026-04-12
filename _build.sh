@@ -26,15 +26,35 @@ function check_jar_location() {
 }
 
 function check_internet_connection() {
-  if ping -c 1 tx.fhir.org &>/dev/null; then
+  local target="tx.fhir.org"
+  local reachable=false
+
+  if command -v ping > /dev/null 2>&1; then
+    if ping -c 1 -W 5 "$target" > /dev/null 2>&1 \
+    || ping -c 1 -w 5 "$target" > /dev/null 2>&1; then
+      reachable=true
+    fi
+  elif command -v curl > /dev/null 2>&1; then
+    if curl --silent --max-time 5 --output /dev/null "https://$target"; then
+      reachable=true
+    fi
+  else
+    echo "WARNING: Neither ping nor curl available — assuming offline."
+  fi
+
+  if [ "$reachable" = "true" ]; then
     online=true
-    echo "We're online and tx.fhir.org is available."
+    echo "We're online and $target is available."
     latest_version=$(curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest | grep tag_name | cut -d'"' -f4)
   else
     online=false
-    echo "We're offline or tx.fhir.org is unavailable."
+    echo ""
+    echo "⚠️  WARNING: Working offline — this is not the normal mode."
+    echo "   Some features (e.g. terminology rendering) will not work."
+    echo ""
   fi
 }
+
 
 
 function update_publisher() {
