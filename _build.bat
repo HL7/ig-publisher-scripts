@@ -64,8 +64,10 @@ IF "%online_status%"=="true" (
     SET "latest_version=!latest_version: =!"
     SET "latest_version=!latest_version:~0,-1!"
 ) ELSE (
-    ECHO We're offline or tx.fhir.org is not available, can only run the publisher without TX...
-    SET "txoption=-tx n/a"
+    ECHO.
+    ECHO *** WARNING: Working offline - this is not the normal mode.
+    ECHO     Some features (e.g. terminology rendering) will not work.
+    ECHO.    SET "txoption=-tx n/a"
     SET "latest_version=unknown"
     SET "default_choice=4"
 )
