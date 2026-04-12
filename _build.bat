@@ -25,6 +25,7 @@ IF EXIST "%input_cache_path%%publisher_jar%" (
     ) ELSE (
         SET "jar_location=not_found"
         SET "default_choice=1"
+        SET "default_reason=publisher not found"
         ECHO publisher.jar not found in input-cache or parent folder
     )
 )
@@ -67,9 +68,11 @@ IF "%online_status%"=="true" (
     ECHO.
     ECHO *** WARNING: Working offline - this is not the normal mode.
     ECHO     Some features (e.g. terminology rendering) will not work.
-    ECHO.    SET "txoption=-tx n/a"
+    ECHO.
+    SET "txoption=-tx n/a"
     SET "latest_version=unknown"
     SET "default_choice=4"
+    SET "default_reason=working offline"
 )
 
 echo ---------------------------------------------------------------
@@ -92,9 +95,11 @@ IF NOT "%online_status%"=="true" (
     IF NOT "!publisher_version!"=="!latest_version!" (
         ECHO An update is recommended.
         SET "default_choice=1"
+        SET "default_reason=newer version available"
     ) ELSE (
         ECHO Publisher is up to date.
         SET "default_choice=2"
+        SET "default_reason=publisher is up to date"
     )
 )
 
@@ -109,12 +114,9 @@ echo 4. Build IG - force no TX server
 echo 5. Jekyll build
 echo 6. Clean up temp directories
 echo 0. Exit
-:: echo [Press Enter for default (%default_choice%) or type an option number:]
 echo.
 
-:: Using CHOICE to handle input with timeout
-:: ECHO [Enter=Continue, 1-7=Option, 0=Exit]
-choice /C 12345670 /N /CS /D %default_choice% /T 5 /M "Choose an option number or wait 5 seconds for default (%default_choice%):"
+choice /C 12345670 /N /CS /D %default_choice% /T 5 /M "Choose an option number or wait 5 seconds for default (%default_choice% - %default_reason%):"
 SET "userChoice=%ERRORLEVEL%"
 
 
@@ -163,9 +165,6 @@ GOTO endscript
     )
 
 GOTO endscript
-
-
-
 
 
 :downloadpublisher
@@ -382,8 +381,6 @@ GOTO endscript
 :endscript
 
 :: Pausing at the end
-
-
 IF NOT "%skipPrompts%"=="true" (
   PAUSE
 )
