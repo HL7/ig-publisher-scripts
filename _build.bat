@@ -213,7 +213,7 @@ IF "%skipPrompts%"=="true" (
 	SET /p create="Download? (Y/N) "
 )
 IF /I "%create%"=="Y" (
-	ECHO will place publisher jar here: %input_cache_path%%publisher_jar%
+	ECHO Will place publisher jar here: %input_cache_path%%publisher_jar%
 	MKDIR "%input_cache_path%" 2> NUL
 	GOTO download
 )
@@ -326,7 +326,7 @@ IF NOT "%jar_location%"=="not_found" (
 	ECHO IG Publisher FOUND, Publishing...
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% %extraArgs%
 ) ELSE (
-	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please runthe script again to update the publisher.  Aborting...
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run the script and update the publisher.  Aborting...
 )
 
 GOTO endscript
@@ -342,7 +342,7 @@ ECHO jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% -no-sushi %extraArgs%
 ) ELSE (
-	ECHO IG Publisher NOT FOUND in input-cache or parent folder. Please run _updatePublisher.  Aborting...
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder. Please run the script and update the publisher.  Aborting...
 )
 
 GOTO endscript
@@ -358,7 +358,7 @@ ECHO jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% %extraArgs%
 ) ELSE (
-	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run the script and update the publisher.  Aborting...
 )
 
 GOTO endscript
@@ -372,7 +372,7 @@ ECHO jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% -watch %extraArgs%
 ) ELSE (
-	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run the script and update the publisher.  Aborting...
 )
 
 GOTO endscript
