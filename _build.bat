@@ -59,7 +59,7 @@ ECHO Checking internet connection...
 PING tx.fhir.org -4 -n 1 -w 4000 >nul 2>&1 && SET "online_status=true" || SET "online_status=false"
 
 IF "%online_status%"=="true" (
-    ECHO We're online and tx.fhir.org is available.
+    ECHO We are online and tx.fhir.org is available.
     FOR /F "tokens=2 delims=:" %%a IN ('curl -s https://api.github.com/repos/HL7/fhir-ig-publisher/releases/latest ^| findstr "tag_name"') DO SET "latest_version=%%a"
     SET "latest_version=!latest_version:"=!"
     SET "latest_version=!latest_version: =!"
@@ -67,7 +67,7 @@ IF "%online_status%"=="true" (
 ) ELSE (
     ECHO.
     ECHO *** WARNING: Working offline - this is not the normal mode.
-    ECHO     Some features (e.g. terminology rendering) will not work.
+    ECHO     Some features including terminology rendering will not work.
     ECHO.
     SET "txoption=-tx n/a"
     SET "latest_version=unknown"
@@ -90,7 +90,7 @@ IF NOT "%jar_location%"=="not_found" (
 ECHO Publisher version: !publisher_version!; Latest is !latest_version!
 
 IF NOT "%online_status%"=="true" (
-   ECHO We're offline.
+   ECHO We are offline.
 ) ELSE (
     IF NOT "!publisher_version!"=="!latest_version!" (
         ECHO An update is recommended.
@@ -326,7 +326,7 @@ IF NOT "%jar_location%"=="not_found" (
 	ECHO IG Publisher FOUND, Publishing...
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% %extraArgs%
 ) ELSE (
-	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run the script and update the publisher.  Aborting...
 )
 
 GOTO endscript
@@ -342,7 +342,7 @@ ECHO jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% -no-sushi %extraArgs%
 ) ELSE (
-	ECHO IG Publisher NOT FOUND in input-cache or parent folder. Please run _updatePublisher.  Aborting...
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder. Please run the script and update the publisher.  Aborting...
 )
 
 GOTO endscript
@@ -358,7 +358,7 @@ ECHO jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% %extraArgs%
 ) ELSE (
-	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run the script and update the publisher.  Aborting...
 )
 
 GOTO endscript
@@ -372,7 +372,7 @@ ECHO jar_location is: %jar_location%
 IF NOT "%jar_location%"=="not_found" (
 	java %JAVA_OPTS% -jar "%jar_location%" -ig . %txoption% -watch %extraArgs%
 ) ELSE (
-	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run _updatePublisher.  Aborting...
+	ECHO IG Publisher NOT FOUND in input-cache or parent folder.  Please run the script and update the publisher.  Aborting...
 )
 
 GOTO endscript
