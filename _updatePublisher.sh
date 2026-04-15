@@ -16,6 +16,7 @@ build_sh_url=$scriptdlroot/_build.sh
 build_bat_url=$scriptdlroot/_build.bat
 
 skipPrompts=false
+skipPublisherPrompt=false
 FORCE=false
 
 if ! type "curl" > /dev/null; then
@@ -27,6 +28,7 @@ while [ "$#" -gt 0 ]; do
     case $1 in
     -f|--force)  FORCE=true ;;
     -y|--yes)  skipPrompts=true ; FORCE=true ;;
+    -p|--publisher)  skipPublisherPrompt=true ; FORCE=true ;;
     *)  echo "Unknown parameter passed: $1.  Exiting"; exit 1 ;;
     esac
     shift
@@ -77,7 +79,7 @@ else
 	fi
 fi
 
-if [[ $skipPrompts == false ]]; then
+if [[ $skipPrompts == false ]] && [[ $skipPublisherPrompt == false ]] ; then
 
   if [[ $upgrade == true ]]; then
     message="Overwrite $jarlocation? (Y/N) "
@@ -89,7 +91,7 @@ if [[ $skipPrompts == false ]]; then
 else
   response=y
 fi
-if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
+if [[ $skipPrompts == true ]] || [[ $skipPublisherPrompt == true ]] || [[ $response =~ ^[yY].*$ ]]; then
 
 	echo "Downloading most recent publisher to $jarlocationname - it's ~100 MB, so this may take a bit"
 	curl -L $dlurl -o "$jarlocation" --create-dirs
@@ -97,7 +99,8 @@ else
 	echo cancelled publisher update
 fi
 
-if [[ $skipPrompts != true ]]; then
+response=n
+if [[ $skipPrompts != true ]] && [[ $skipPublisherPrompt != true ]] ; then
     message="Update scripts? (enter 'y' or 'Y' to continue, any other key to cancel)?"
     read -r -p "$message" response
   fi
