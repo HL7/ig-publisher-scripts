@@ -91,7 +91,7 @@ else
 fi
 if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
 
-	echo "Downloading most recent publisher to $jarlocationname - it's ~100 MB, so this may take a bit"
+	echo "Downloading most recent publisher to $jarlocationname - it's ~200 MB, so this may take a bit"
 	curl -L $dlurl -o "$jarlocation" --create-dirs
 else
 	echo cancelled publisher update
