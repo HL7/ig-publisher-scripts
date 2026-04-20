@@ -1,4 +1,13 @@
 #!/bin/bash
+function isOnline ()
+{
+   curl -sSf tx.fhir.org > /dev/null
+   if [ $? -ne 0 ]; then
+      curl -sSf tx.fhir.org/r4 > /dev/null
+   fi
+   return $?
+}
+
 pubsource=https://github.com/HL7/fhir-ig-publisher/releases/latest/download/
 publisher_jar=publisher.jar
 dlurl=$pubsource$publisher_jar
@@ -33,7 +42,8 @@ while [ "$#" -gt 0 ]; do
 done
 
 echo "Checking internet connection"
-curl -sSf tx.fhir.org > /dev/null
+#curl -sSf tx.fhir.org > /dev/null
+isOnline
 
 if [ $? -ne 0 ] ; then
   echo "Offline (or the terminology server is down), unable to update.  Exiting"
