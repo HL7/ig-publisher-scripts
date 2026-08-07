@@ -1,8 +1,17 @@
 #!/bin/bash
+function isOnline ()
+{
+   curl -sSf tx.fhir.org > /dev/null
+   if [ $? -ne 0 ]; then
+      curl -sSf tx.fhir.org/r4 > /dev/null
+   fi
+   return $?
+}
 publisher_jar=publisher.jar
 input_cache_path=./input-cache/
 echo Checking internet connection...
-curl -sSf tx.fhir.org > /dev/null
+#curl -sSf tx.fhir.org > /dev/null
+isOnline
 
 if [ $? -eq 0 ]; then
 	echo "Online"
