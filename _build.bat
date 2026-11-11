@@ -197,6 +197,12 @@ IF EXIST "%input_cache_path%%publisher_jar%" (
 	SET "jarlocationname=Input Cache"
 	GOTO upgrade
 )
+IF EXIST "%upper_path%%publisher_jar%" (
+	ECHO IG Publisher FOUND in parent folder
+	SET "jarlocation=%upper_path%%publisher_jar%"
+	SET "jarlocationname=Parent Folder"
+	GOTO upgrade
+)
 SET "jarlocation=%publisher_home%\%publisher_jar%"
 SET "jarlocationname=FHIR Publisher Home"
 IF EXIST "%publisher_home%\%publisher_jar%" (
