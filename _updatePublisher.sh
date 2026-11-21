@@ -74,9 +74,31 @@ else
 fi
 if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
 
-	echo "Downloading most recent publisher to $jarlocationname - it's ~100 MB, so this may take a bit"
-	mkdir -p "$(dirname "$jarlocation")"
-	curl -L "$dlurl" -o "$jarlocation"
+	if headers=$(curl -fsSIL "$dlurl"); then
+		size_mb=$(printf '%s\n' "$headers" | awk '
+			/^HTTP\// { length_bytes = "" }
+			tolower($1) == "content-length:" && $2 ~ /^[0-9]+\r?$/ { length_bytes = $2 }
+			END { if (length_bytes > 0) printf "%.0f", length_bytes / 1000000 }
+		')
+	else
+		size_mb=""
+	fi
+	if [[ -n $size_mb ]]; then
+		size_description="~$size_mb MB"
+	else
+		size_description="~230 MB (unable to check current size)"
+	fi
+	echo "Publisher download to $jarlocationname is $size_description, so this may take a bit"
+	if [[ $skipPrompts == false ]]; then
+		read -r -p "Are you sure you want to download publisher.jar ($size_description)? (Y/N) " response
+	fi
+	if [[ $skipPrompts == true ]] || [[ $response =~ ^[yY].*$ ]]; then
+		echo "Downloading most recent publisher to $jarlocationname"
+		mkdir -p "$(dirname "$jarlocation")"
+		curl -L "$dlurl" -o "$jarlocation"
+	else
+		echo cancelled publisher update
+	fi
 else
 	echo cancelled publisher update
 fi
