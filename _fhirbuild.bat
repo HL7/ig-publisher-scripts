@@ -148,8 +148,8 @@ echo 3. Build IG - no sushi
 echo 4. Build IG - force no TX server
 echo 5. Jekyll build
 echo 6. Clean up temp directories
-echo 7. Install: open .fhirbuild and .fhirbuildonce files with this script
-echo 8. Uninstall: remove these file associations
+echo 7. Install: associate .fhirbuild and .fhirbuildonce files with this script
+echo 8. Uninstall: remove the .fhirbuild and .fhirbuildonce file associations
 echo 0. Exit
 echo.
 

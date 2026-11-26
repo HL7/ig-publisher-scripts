@@ -388,8 +388,8 @@ echo "3) Build IG without Sushi"
 echo "4) Build IG without TX server"
 echo "5) Jekyll build"
 echo "6) Cleanup temp directories"
-echo "7) Install: open .fhirbuild and .fhirbuildonce files with this script"
-echo "8) Uninstall: remove these file associations"
+echo "7) Install: associate .fhirbuild and .fhirbuildonce files with this script"
+echo "8) Uninstall: remove the .fhirbuild and .fhirbuildonce file associations"
 echo "0) Exit"
 echo
 
