@@ -38,6 +38,7 @@ SET "upper_path=..\"
 :: TEMPORARY: updates from the no-local-scripts branch until it is merged; then back to main
 SET "scriptdlroot=https://raw.githubusercontent.com/HL7/ig-publisher-scripts/no-local-scripts"
 SET "fhirbuild_bat_url=%scriptdlroot%/_fhirbuild.bat"
+SET "fhirbuild_sh_url=%scriptdlroot%/_fhirbuild.sh"
 
 
 
@@ -319,7 +320,7 @@ ECHO Updating scripts
 IF "%skipPrompts%"=="true" (
 	SET updateScripts=Y
 ) ELSE (
-	SET /p updateScripts="Update scripts? (Y/N) "
+	SET /p updateScripts="Update _fhirbuild.bat and _fhirbuild.sh? (Y/N) "
 )
 IF /I "%updateScripts%"=="Y" (
 	GOTO scripts
@@ -329,11 +330,21 @@ GOTO endscript
 
 :scripts
 
-REM Update this script where it is, not in the IG folder
+REM Update this script and _fhirbuild.sh where this script is, not in the IG folder
 
 SETLOCAL DisableDelayedExpansion
 PUSHD "%script_dir%"
 
+ECHO Updating _fhirbuild.sh
+call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%fhirbuild_sh_url%\",\"_fhirbuild.new.sh\") } else { Invoke-WebRequest -Uri "%fhirbuild_sh_url%" -Outfile "_fhirbuild.new.sh" }
+if %ERRORLEVEL% == 0 (
+    move /y "_fhirbuild.new.sh" "_fhirbuild.sh" > NUL
+) else (
+    echo "Errors encountered during download: %errorlevel%"
+    del "_fhirbuild.new.sh" > NUL 2>&1
+)
+
+REM This script last: it is replaced while it runs
 ECHO Updating _fhirbuild.bat
 call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%fhirbuild_bat_url%\",\"_fhirbuild.new.bat\") } else { Invoke-WebRequest -Uri "%fhirbuild_bat_url%" -Outfile "_fhirbuild.new.bat" }
 if %ERRORLEVEL% == 0 goto upd_script

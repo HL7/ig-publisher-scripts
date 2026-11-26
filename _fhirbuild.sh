@@ -179,6 +179,7 @@ upper_path="../"
 # TEMPORARY: updates from the no-local-scripts branch until it is merged; then back to main
 scriptdlroot="https://raw.githubusercontent.com/HL7/ig-publisher-scripts/no-local-scripts"
 fhirbuild_sh_url="${scriptdlroot}/_fhirbuild.sh"
+fhirbuild_bat_url="${scriptdlroot}/_fhirbuild.bat"
 
 function check_jar_location() {
   if [ -f "${input_cache_path}${publisher_jar}" ]; then
@@ -264,20 +265,26 @@ function update_scripts_prompt() {
   if [ "$skipPrompts" = "true" ]; then
     update_confirm="Y"
   else
-    read -p "Update _fhirbuild.sh? (Y/N): " update_confirm
+    read -p "Update _fhirbuild.sh and _fhirbuild.bat? (Y/N): " update_confirm
   fi
   if [[ "$update_confirm" =~ ^[Yy]$ ]]; then
-    echo "Updating ${script_path}..."
-    if curl -fsSL "$fhirbuild_sh_url" -o "${script_path}.new"; then
-      chmod +x "${script_path}.new"
-      mv "${script_path}.new" "$script_path"
-      echo "Script updated."
-    else
-      rm -f "${script_path}.new"
-      echo "Could not download ${fhirbuild_sh_url}; the script was not updated."
-    fi
+    update_script_file "$fhirbuild_sh_url" "$script_path"
+    update_script_file "$fhirbuild_bat_url" "${script_dir}/_fhirbuild.bat"
   else
-    echo "Skipped updating the script."
+    echo "Skipped updating the scripts."
+  fi
+}
+
+# Parameters: url, file. Downloads to a temporary file first, so a failed download keeps the file as it is.
+# mv replaces the file, so this script can update itself while it runs.
+function update_script_file() {
+  echo "Updating $2..."
+  if curl -fsSL "$1" -o "$2.new"; then
+    chmod +x "$2.new"
+    mv "$2.new" "$2"
+  else
+    rm -f "$2.new"
+    echo "Could not download $1; $2 was not updated."
   fi
 }
 
