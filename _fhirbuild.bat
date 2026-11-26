@@ -1,6 +1,30 @@
 @ECHO OFF
 setlocal enabledelayedexpansion
 
+:: _fhirbuild.bat: builds FHIR IGs with the IG Publisher. One copy per computer, not a copy in each IG.
+::   _fhirbuild.bat install    associate .fhirbuild and .fhirbuildonce files with this script, where it is
+::                             (current user, no admin rights). Run again after moving the script.
+::   _fhirbuild.bat uninstall  remove these associations
+:: Opening a .fhirbuild file (e.g. an empty _ig.fhirbuild in the IG folder) runs this script on the folder
+:: of that file, with the menu; a .fhirbuildonce file runs the build directly (option 2).
+:: The first argument can also be any file, e.g. from "Open with". Without a file, it runs on the current folder.
+:: Options: update, build, nosushi, notx, jekyll, clean, exit; other arguments are passed to the publisher.
+SET "script_dir=%~dp0"
+SET "script_path=%~f0"
+SET "pushed=false"
+IF /I "%~1"=="install" GOTO install
+IF /I "%~1"=="uninstall" GOTO uninstall
+:: A file, not a folder (IF EXIST "file\" is also true for files on UNC paths)
+SET "first_attr=%~a1"
+IF "%~1"=="" GOTO settings
+IF NOT EXIST "%~1" GOTO settings
+IF /I "%first_attr:~0,1%"=="d" GOTO settings
+:: PUSHD is used because CD does not support UNC paths
+PUSHD "%~dp1" || (PAUSE & EXIT /B 1)
+SET "pushed=true"
+SHIFT /1
+:settings
+
 SET "dlurl=https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar"
 SET "publisher_jar=publisher.jar"
 SET "input_cache_path=%CD%\input-cache\"
@@ -12,8 +36,7 @@ IF DEFINED FHIR_PUBLISHER_HOME (
 SET "skipPrompts=false"
 SET "upper_path=..\"
 SET "scriptdlroot=https://raw.githubusercontent.com/HL7/ig-publisher-scripts/main"
-SET "build_bat_url=%scriptdlroot%/_build.bat"
-SET "build_sh_url=%scriptdlroot%/_build.sh"
+SET "fhirbuild_bat_url=%scriptdlroot%/_fhirbuild.bat"
 
 
 
@@ -292,34 +315,22 @@ GOTO endscript
 
 :scripts
 
-REM Download all batch files (and this one with a new name)
+REM Update this script where it is, not in the IG folder
 
 SETLOCAL DisableDelayedExpansion
+PUSHD "%script_dir%"
 
-
-
-:dl_script_1
-ECHO Updating _build.sh
-call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%build_sh_url%\",\"_build.new.sh\") } else { Invoke-WebRequest -Uri "%build_sh_url%" -Outfile "_build.new.sh" }
-if %ERRORLEVEL% == 0 goto upd_script_1
+ECHO Updating _fhirbuild.bat
+call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%fhirbuild_bat_url%\",\"_fhirbuild.new.bat\") } else { Invoke-WebRequest -Uri "%fhirbuild_bat_url%" -Outfile "_fhirbuild.new.bat" }
+if %ERRORLEVEL% == 0 goto upd_script
 echo "Errors encountered during download: %errorlevel%"
-goto dl_script_2
-:upd_script_1
-start copy /y "_build.new.sh" "_build.sh" ^&^& del "_build.new.sh" ^&^& exit
-
-
-:dl_script_2
-ECHO Updating _build.bat
-call POWERSHELL -command if ('System.Net.WebClient' -as [type]) {(new-object System.Net.WebClient).DownloadFile(\"%build_bat_url%\",\"_build.new.bat\") } else { Invoke-WebRequest -Uri "%build_bat_url%" -Outfile "_build.new.bat" }
-if %ERRORLEVEL% == 0 goto upd_script_2
-echo "Errors encountered during download: %errorlevel%"
+POPD
 goto endscript
-:upd_script_2
-start copy /y "_build.new.bat" "_build.bat" ^&^& del "_build.new.bat" ^&^& exit
-
+:upd_script
+start copy /y "_fhirbuild.new.bat" "_fhirbuild.bat" ^&^& del "_fhirbuild.new.bat" ^&^& exit
+POPD
 
 GOTO endscript
-
 
 :publish_once
 
@@ -389,3 +400,51 @@ GOTO endscript
 IF NOT "%skipPrompts%"=="true" (
   PAUSE
 )
+IF "%pushed%"=="true" POPD
+EXIT /B
+
+
+:: ---------------------------------------------------------------
+:: File associations, for the current user only
+
+:install
+CALL :register .fhirbuild HL7.FHIR.IGBuild "FHIR IG build" || GOTO install_end
+CALL :register .fhirbuildonce HL7.FHIR.IGBuildOnce "FHIR IG build (once)" "build " || GOTO install_end
+ECHO Opening a .fhirbuild file now runs %script_path% in the folder that contains the file.
+ECHO Opening a .fhirbuildonce file runs the build directly, without the menu.
+ECHO If you move this script, run install again.
+:install_end
+PAUSE
+EXIT /B
+
+:uninstall
+CALL :unregister .fhirbuild HL7.FHIR.IGBuild || GOTO uninstall_end
+CALL :unregister .fhirbuildonce HL7.FHIR.IGBuildOnce || GOTO uninstall_end
+ECHO Removed the .fhirbuild and .fhirbuildonce associations. This script and the publisher are not touched.
+:uninstall_end
+PAUSE
+EXIT /B
+
+:: Parameters: extension, program id, description, options for this script (with a trailing space)
+:register
+REG ADD "HKCU\Software\Classes\%~2" /ve /d "%~3" /f > NUL || GOTO register_failed
+REG ADD "HKCU\Software\Classes\%~2\shell\open\command" /ve /d "\"%script_path%\" \"%%1\" %~4%%*" /f > NUL || GOTO register_failed
+REG ADD "HKCU\Software\Classes\%~1" /ve /d "%~2" /f > NUL || GOTO register_failed
+EXIT /B 0
+:register_failed
+ECHO Could not register the %~1 file type.
+EXIT /B 1
+
+:: Parameters: extension, program id
+:unregister
+:: Leave the extension alone if it has been associated with something else in the meantime
+REG QUERY "HKCU\Software\Classes\%~1" /ve 2> NUL | FINDSTR /L /E /C:" %~2" > NUL
+IF NOT ERRORLEVEL 1 REG DELETE "HKCU\Software\Classes\%~1" /f > NUL 2>&1
+REG DELETE "HKCU\Software\Classes\%~2" /f > NUL 2>&1
+:: Entries that Windows adds by itself when such a file is opened
+REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\ApplicationAssociationToasts" /v "%~2_%~1" /f > NUL 2>&1
+REG DELETE "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\%~1\OpenWithProgids" /v "%~2" /f > NUL 2>&1
+REG QUERY "HKCU\Software\Classes\%~2" > NUL 2>&1
+IF ERRORLEVEL 1 EXIT /B 0
+ECHO Could not remove the %~1 association.
+EXIT /B 1
