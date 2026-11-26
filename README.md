@@ -37,7 +37,7 @@ The publisher is looked up in this order:
 2. `../publisher.jar`, the legacy shared location
 3. `$FHIR_PUBLISHER_HOME/publisher.jar`, or the default above
 
-`update` updates `input-cache/publisher.jar` if it exists, and otherwise the shared publisher. It then offers to update the script itself, where it is.
+`update` updates the publisher where it is found, in the same order, so the version that is checked is the one that is updated. If there is none, it installs the shared publisher. It then offers to update the script itself, where it is.
 
 ## Security note
 

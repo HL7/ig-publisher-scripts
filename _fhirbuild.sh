@@ -228,9 +228,13 @@ function check_internet_connection() {
 
 
 function update_publisher() {
+  # Same order as check_jar_location, so that the publisher that is checked is the one that is updated
   if [ -f "${input_cache_path}${publisher_jar}" ]; then
     update_location="${input_cache_path}${publisher_jar}"
     update_location_name="input-cache"
+  elif [ -f "${upper_path}${publisher_jar}" ]; then
+    update_location="$(pwd)/${upper_path}${publisher_jar}"
+    update_location_name="parent folder"
   else
     update_location="${publisher_home}/${publisher_jar}"
     update_location_name="FHIR publisher home"

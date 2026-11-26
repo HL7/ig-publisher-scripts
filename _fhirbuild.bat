@@ -226,13 +226,20 @@ IF EXIST "%input_cache_path%%publisher_jar%" (
 	SET "jarlocationname=Input Cache"
 	GOTO upgrade
 )
+:: Same order as the lookup at the start, so that the publisher that is checked is the one that is updated
+IF EXIST "%upper_path%%publisher_jar%" (
+	ECHO IG Publisher FOUND in parent folder
+	SET "jarlocation=%CD%\%upper_path%%publisher_jar%"
+	SET "jarlocationname=Parent Folder"
+	GOTO upgrade
+)
 SET "jarlocation=%publisher_home%\%publisher_jar%"
 SET "jarlocationname=FHIR Publisher Home"
 IF EXIST "%publisher_home%\%publisher_jar%" (
 	ECHO IG Publisher FOUND in FHIR publisher home
 	GOTO upgrade
 )
-ECHO IG Publisher is not yet in input-cache or FHIR publisher home.
+ECHO IG Publisher is not yet in input-cache, parent folder, or FHIR publisher home.
 GOTO create
 
 :create
