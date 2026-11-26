@@ -1,0 +1,3 @@
+# Batch files are stored with CRLF, so that they are also downloaded with CRLF:
+# cmd can misread batch files with LF line endings (labels for GOTO and CALL)
+*.bat -text
