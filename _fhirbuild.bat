@@ -35,7 +35,8 @@ IF DEFINED FHIR_PUBLISHER_HOME (
 )
 SET "skipPrompts=false"
 SET "upper_path=..\"
-SET "scriptdlroot=https://raw.githubusercontent.com/HL7/ig-publisher-scripts/main"
+:: TEMPORARY: updates from the no-local-scripts branch until it is merged; then back to main
+SET "scriptdlroot=https://raw.githubusercontent.com/HL7/ig-publisher-scripts/no-local-scripts"
 SET "fhirbuild_bat_url=%scriptdlroot%/_fhirbuild.bat"
 
 

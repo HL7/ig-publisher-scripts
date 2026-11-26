@@ -176,7 +176,8 @@ input_cache_path="$(pwd)/input-cache/"
 publisher_home="${FHIR_PUBLISHER_HOME:-$HOME/.fhir/tools/publisher}"
 skipPrompts=false
 upper_path="../"
-scriptdlroot="https://raw.githubusercontent.com/HL7/ig-publisher-scripts/main"
+# TEMPORARY: updates from the no-local-scripts branch until it is merged; then back to main
+scriptdlroot="https://raw.githubusercontent.com/HL7/ig-publisher-scripts/no-local-scripts"
 fhirbuild_sh_url="${scriptdlroot}/_fhirbuild.sh"
 
 function check_jar_location() {
