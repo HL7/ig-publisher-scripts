@@ -148,11 +148,15 @@ echo 3. Build IG - no sushi
 echo 4. Build IG - force no TX server
 echo 5. Jekyll build
 echo 6. Clean up temp directories
+echo 7. Install: open .fhirbuild and .fhirbuildonce files with this script
+echo 8. Uninstall: remove these file associations
 echo 0. Exit
 echo.
 
-choice /C 12345670 /N /CS /D %default_choice% /T 5 /M "Choose an option number or wait 5 seconds for default (%default_choice% - %default_reason%):"
+choice /C 123456780 /N /CS /D %default_choice% /T 5 /M "Choose an option number or wait 5 seconds for default (%default_choice% - %default_reason%):"
 SET "userChoice=%ERRORLEVEL%"
+:: choice returns the position of the key: 0 is the 9th
+IF "%userChoice%"=="9" SET "userChoice=0"
 
 
 :executeChoice
@@ -164,6 +168,8 @@ IF "%userChoice%"=="3" GOTO publish_nosushi
 IF "%userChoice%"=="4" GOTO publish_notx
 IF "%userChoice%"=="5" GOTO debugjekyll
 IF "%userChoice%"=="6" GOTO clean
+IF "%userChoice%"=="7" GOTO install
+IF "%userChoice%"=="8" GOTO uninstall
 IF "%userChoice%"=="0" EXIT /B
 GOTO endscript
 

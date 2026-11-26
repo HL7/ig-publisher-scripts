@@ -384,6 +384,8 @@ echo "3) Build IG without Sushi"
 echo "4) Build IG without TX server"
 echo "5) Jekyll build"
 echo "6) Cleanup temp directories"
+echo "7) Install: open .fhirbuild and .fhirbuildonce files with this script"
+echo "8) Uninstall: remove these file associations"
 echo "0) Exit"
 echo
 
@@ -400,6 +402,8 @@ case "$choice" in
   4) build_notx ;;
   5) jekyll_build ;;
   6) cleanup ;;
+  7) install_associations ;;
+  8) uninstall_associations ;;
   0) exit 0 ;;
   *) echo "Invalid option." ;;
 esac

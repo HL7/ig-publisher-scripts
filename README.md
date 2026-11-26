@@ -5,10 +5,10 @@
 ## Setup
 
 1. Put the script for your system somewhere, e.g. in `~/.fhir/tools/scripts` (Windows: `%USERPROFILE%\.fhir\tools\scripts`).
-2. Run `_fhirbuild.bat install` or `_fhirbuild.sh install` once. This associates the `.fhirbuild` and `.fhirbuildonce` extensions with the script, where it is, for the current user. It does not need administrator rights. After moving the script, run `install` again.
+2. Run `_fhirbuild.bat install` or `_fhirbuild.sh install` once, or start the script and choose "Install" in the menu. This associates the `.fhirbuild` and `.fhirbuildonce` extensions with the script, where it is, for the current user. It does not need administrator rights. After moving the script, run `install` again.
 3. Run the script with `update` to download the publisher, if it is not there yet.
 
-To remove the associations, run the script with `uninstall`. The script and the publisher are not touched.
+To remove the associations, run the script with `uninstall`, or choose "Uninstall" in the menu. The script and the publisher are not touched.
 
 What `install` sets up:
 
